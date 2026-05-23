@@ -50,7 +50,7 @@
 
 | Paso 1 | Paso 2 | Paso 3 | Paso 4 | Paso 5 |
 |---|---|---|---|---|
-| El agente llama. Avisa que el medicamento está listo. | PIN de voz. Autenticado en segundos. | Elige horario. Turno reservado. Sin fila garantizada. | Va en su turno. Sin esperar. Sabe qué va a pagar. | El agente lo recuerda tomar el medicamento después. |
+| El agente llama. Avisa que el medicamento está listo. | Confirma últimos 4 dígitos de su cédula. Autenticado en segundos. | Elige horario. Turno reservado. Sin fila garantizada. | Va en su turno. Sin esperar. Sabe qué va a pagar. | El agente lo recuerda tomar el medicamento después. |
 | 0 esfuerzo | 30 segundos | 2 min de llamada | Llegada directa | Adherencia activa |
 
 ---
@@ -59,7 +59,7 @@
 
 **El sistema actúa antes de que el paciente lo pida.**
 
-MediAgent es un agente de voz que, a partir del número de fórmula médica, detecta cuándo un medicamento está listo o próximo a vencer en bodega, llama proactivamente al paciente, autentica por PIN de voz, confirma disponibilidad de stock, agenda el turno en el horario de menor afluencia e informa el copago antes de que el paciente salga de casa. Si hay ítems pendientes por stock parcial, agenda la entrega a domicilio. El dispensario ve todo en un dashboard en tiempo real.
+MediAgent es un agente de voz que, a partir del número de fórmula médica, detecta cuándo un medicamento está listo o próximo a vencer en bodega, llama proactivamente al paciente, autentica con los últimos 4 dígitos de la cédula, confirma disponibilidad de stock, agenda el turno en el horario de menor afluencia e informa el copago antes de que el paciente salga de casa. Si hay ítems pendientes por stock parcial, agenda la entrega a domicilio. El dispensario ve todo en un dashboard en tiempo real.
 
 **Hipótesis a demostrar en el hackathon:** un agente de voz puede reducir el tiempo efectivo del paciente en el proceso de reclamación de medicamentos de hasta 8 horas a menos de 5 minutos — sin app, sin cuenta, sin fricción — y darle al dispensario visibilidad predictiva de su demanda.
 
@@ -77,7 +77,7 @@ MediAgent es un agente de voz que, a partir del número de fórmula médica, det
 
 1. El motor proactivo detecta fórmulas listas o medicamentos próximos a vencer en bodega (≤5 días)
 2. El agente llama al paciente — el paciente no hace nada
-3. Autenticación por PIN de 4 dígitos antes de revelar datos clínicos
+3. Autenticación por los últimos 4 dígitos de la cédula antes de revelar datos clínicos. Suena natural en boca del agente y no requiere que el paciente memorice nada nuevo
 4. El agente confirma disponibilidad de todos los ítems de la fórmula
 5. **Si stock completo:** agenda turno en franja de menor afluencia, informa copago
 6. **Si stock parcial:**
@@ -95,47 +95,85 @@ MediAgent es un agente de voz que, a partir del número de fórmula médica, det
 
 ## 6. Scope — qué entra y qué no
 
-| # | Feature | Por qué importa | Prioridad |
+> Scope cortado para sprint de 48h. Sólo entra al demo lo que aparece explícitamente en los 3 minutos del guión (sección 10).
+
+| # | Feature | Por qué importa | Estado demo 48h |
 |---|---|---|---|
-| 1 | Motor proactivo outbound | Detecta fórmulas listas y medicamentos próximos a vencer (≤5 días). Encola llamadas por urgencia: rojo / verde. | MUST |
-| 2 | Llamada outbound por voz (Twilio) | El agente llama — el paciente no hace nada. Sin app. | MUST |
-| 3 | Autenticación por PIN de voz | 4 dígitos antes de revelar datos clínicos. Si falla 2 veces: no revela nada, alerta al dispensario. | MUST |
-| 4 | Confirmación de disponibilidad | El paciente sabe antes de salir si su medicamento está en stock. Elimina visitas en vano. | MUST |
-| 5 | Agendamiento de turno por voz | Distribuye demanda en franjas. Elimina la fila espontánea. | MUST |
-| 6 | Dashboard dispensario en tiempo real | Citas del día · semáforo de vencimientos · alertas de no-contactados · demanda por franja horaria. | MUST |
-| 7 | Recordatorio de toma post-recogida | Cierra el ciclo reclamación → recogida → adherencia. Reutiliza el motor outbound. | MUST |
-| 8 | Recordatorio 2h antes del turno | Reduce ausentismo. El cupo liberado puede asignarse a otro paciente. | SHOULD |
-| 9 | Manejo de objeción "no puedo esa hora" | El agente ofrece franja alternativa sin colgar. | SHOULD |
-| 10 | Alerta a familiar — 2 no-contactos | Si el paciente no contesta dos veces: dashboard alerta al familiar registrado. | SHOULD |
-| 11 | Info de copago al confirmar turno | El paciente llega sabiendo cuánto va a pagar. Reduce fricción en ventanilla. | SHOULD |
-| 12 | Link de pago Nequi por SMS post-llamada | Copago pagado antes de llegar elimina la fila de ventanilla. | BONUS |
-| — | Integración real EPS · App móvil · Biometría · Multi-sede | Fuera de scope. No se menciona en el pitch. | WON'T |
+| 1 | Motor proactivo outbound | Detecta fórmulas listas y medicamentos próximos a vencer (≤5 días). | **DEMO** — trigger manual desde dashboard, no cron real |
+| 2 | Llamada outbound por voz (Vapi + Twilio) | El agente llama — el paciente no hace nada. Sin app. | **DEMO** |
+| 3 | Autenticación por últimos 4 de cédula | Antes de revelar datos clínicos. Si falla 2 veces: no revela nada. Más natural que un PIN nuevo. | **DEMO** |
+| 4 | Confirmación de disponibilidad (stock completo y parcial) | El paciente sabe antes de salir si su medicamento está en stock. | **DEMO** |
+| 5 | Agendamiento de turno por voz | Distribuye la demanda en franjas horarias. Elimina la fila espontánea. | **DEMO** |
+| 6 | Dashboard dispensario en tiempo real | Citas del día · semáforo de vencimientos · alertas de no-contactados · demanda por franja horaria. | **DEMO** |
+| 7 | Info de copago al confirmar turno | El paciente llega sabiendo cuánto va a pagar. | **DEMO** — hardcoded en voz, no calculado |
+| 8 | Manejo de objeción "no puedo esa hora" | El agente ofrece franja alternativa en lugar de terminar la llamada. | **DEMO** — sólo en prompt del agente, sin lógica adicional |
+| 9 | Entrega a domicilio para ítems pendientes | Se agenda verbalmente y se inserta el registro en DB. | **DEMO** — sin flujo posterior real |
+| 10 | Recordatorio de toma post-recogida | El agente llama en el horario de toma registrado. Cierra el ciclo adherencia. | **RECORTADO** — no aparece en el guión de demo |
+| 11 | Recordatorio 2h antes del turno | Reduce ausentismo. | **RECORTADO** — roadmap |
+| 12 | Alerta a familiar — 2 no-contactos | Si el paciente no contesta dos veces, alertar a familiar registrado. | **RECORTADO** — roadmap |
+| 13 | Link de pago Nequi por SMS post-llamada | Copago pagado antes de llegar. | **RECORTADO** — roadmap |
+| 14 | Generación de orden con QR | QR con fecha, ítems, turno, copago. | **RECORTADO** — el agendamiento basta para el demo |
+| 15 | Cron automático del motor proactivo | Detección continua sin intervención humana. | **RECORTADO** — trigger manual es más visible en demo |
+| — | Integración real EPS · App móvil · Biometría · Multi-sede | Fuera de scope completo. | **WON'T** |
 
 ---
 
 ## 7. Arquitectura técnica
 
+> Stack diseñado para 48h con foco en baja latencia conversacional y voz con acento colombiano. Detalle completo en `docs/architecture.md`.
+
 ```
-Motor proactivo (cron / evento fórmula lista)
-        │
-        ▼
-   AWS Lambda  ◄──── Agente IA (AWS Bedrock / Claude Sonnet)
-        │
-        ├──► Twilio Voice API (llamada outbound al paciente)
-        │
-        ├──► DynamoDB (pacientes, fórmulas, stock, órdenes, turnos)
-        │
-        └──► Dashboard interno (React + datos simulados)
+┌─────────────────────────────────────────────────────────────┐
+│  Railway — Next.js fullstack (always-on, sin cold starts)   │
+│                                                             │
+│   Dashboard (React + Supabase Realtime client)              │
+│   │  "Llamar paciente" (botón)                              │
+│   ▼                                                         │
+│   POST /api/calls/start                                     │
+│                                                             │
+│   Route Handlers (tools):                                   │
+│   /api/tools/verify-cc                                      │
+│   /api/tools/check-stock                                    │
+│   /api/tools/schedule                                       │
+└───────────┬─────────────────────────┬───────────────────────┘
+            │ webhook (tool calls)    │ create call
+            │                         ▼
+            │                  ┌─────────────┐
+            │                  │     Vapi    │
+            │                  └──────┬──────┘
+            │                         │
+            │              ┌──────────┴──────────────────────┐
+            │              ▼                                  ▼
+            │     Twilio (número CO)                  Providers configurados:
+            │              │                          • Deepgram Nova-2 (STT)
+            │              ▼                          • OpenAI GPT-4o (LLM)
+            │     Teléfono paciente                   • ElevenLabs Valentina (TTS es-CO)
+            │
+            ▼
+       ┌──────────────────┐    realtime push
+       │Supabase Postgres ├──────────────► Dashboard se actualiza en vivo
+       └──────────────────┘
 ```
 
 **Stack:**
-- Agente de voz: Twilio Voice API + AWS Lambda
-- IA conversacional: AWS Bedrock (Claude Sonnet)
-- Base de datos: DynamoDB
-- Dashboard: React (datos sintéticos para el demo)
-- Notificaciones adicionales: Amazon SNS / Twilio SMS
+- **Hosting:** Railway (Next.js fullstack always-on, plan Hobby $5/mes)
+- **Framework:** Next.js 15 (App Router) + TypeScript + Tailwind + shadcn/ui
+- **Base de datos:** Supabase Postgres + Realtime
+- **Orquestador de voz:** Vapi (abstrae Twilio + STT + LLM + TTS + turn-taking + barge-in)
+- **Telefonía:** Twilio (número outbound CO)
+- **STT:** Deepgram Nova-2 (español)
+- **LLM:** OpenAI GPT-4o (con GPT-4o-mini como plan B de latencia)
+- **TTS:** ElevenLabs voz Valentina (es-CO) — único TTS con acento auténticamente colombiano
+- **Auth paciente:** últimos 4 dígitos de la cédula (no PIN nuevo)
 
-> Para el demo, el stock y los datos de pacientes son sintéticos. La arquitectura es idéntica a la de producción.
+> Para el demo, los datos de pacientes, medicamentos y stock son sintéticos. La arquitectura es idéntica a la de producción.
+
+**Decisiones clave (justificación detallada en `docs/architecture.md`):**
+- **Railway en lugar de AWS Lambda** — los cold starts de serverless dañan la latencia de voz; Railway always-on los elimina
+- **Vapi en lugar de Twilio + Lambda crudo** — ahorra ~1 día de plomería de audio streaming
+- **OpenAI API directa en lugar de Bedrock** — Bedrock requiere request de acceso al modelo, incompatible con sprint de 48h
+- **Supabase Postgres en lugar de DynamoDB** — modelo relacional es 3x más rápido de iterar en 48h
+- **Pipeline tradicional en lugar de voice-native (GPT-4o Realtime / Gemini Live)** — voice-native no tiene voz colombiana, y el acento local es parte del impacto del demo
 
 ---
 
@@ -168,8 +206,8 @@ Panel de control para el operador del dispensario. Muestra únicamente:
 |---|---|
 | 0:00 – 0:30 | *"En febrero de 2026 una adulta mayor murió de un paro cardíaco dentro de un dispensario en Cúcuta. Estaba esperando en fila. Son las 978.177 quejas del primer semestre de 2025. Este es el problema que resuelve MediAgent."* |
 | 0:30 – 1:00 | Mostrar dashboard: semáforo rojo — medicamento vence en 2 días, paciente sin contactar. El sistema dispara la llamada. |
-| 1:00 – 1:45 | El jurado contesta. El agente autentica por PIN, confirma stock parcial, agenda turno para lo disponible y propone fecha de domicilio para lo pendiente. La cita aparece en el dashboard en tiempo real. |
-| 1:45 – 2:30 | Recordatorio automático 2h antes del turno. El paciente llega, muestra QR. Estado cambia a "Entregado". El agente llama a recordarle tomar el medicamento. |
+| 1:00 – 1:45 | El jurado contesta. El agente autentica con los últimos 4 dígitos de la cédula, confirma disponibilidad, agenda el turno e informa el copago. La cita aparece en el dashboard en tiempo real. |
+| 1:45 – 2:30 | Stock parcial detectado: el agente agenda lo disponible para el turno y propone fecha de entrega a domicilio para los ítems pendientes. Todo el flujo en una sola llamada. |
 | 2:30 – 3:00 | *"Lo que acaban de experimentar tomó 3 minutos. Antes tomaba hasta 8 horas — si es que llegaba el turno. La fila ya no existe. Se gestionó antes de que el paciente saliera de su casa."* |
 
 ---

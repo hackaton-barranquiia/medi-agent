@@ -1,5 +1,5 @@
 // Vapi assistant configuration — source of truth for assistant ID c9b4cf72-90c3-4d5b-a57f-10bd6d4f7262
-// Update this file when making changes, then apply via: scripts/sync-assistant.ts (or Vapi dashboard)
+// Apply changes with `npm run sync:assistant` or update the Vapi dashboard manually.
 
 export const SYSTEM_PROMPT = `INSTRUCCION CRITICA: Cuando necesites llamar una tool, NO generes ningun texto antes. Ejecuta la tool directamente como primera accion. Solo habla despues de recibir el resultado.
 
@@ -35,11 +35,17 @@ export const ASSISTANT_CONFIG = {
     language: "es",
     smartFormat: false,
     endpointing: 50,
+    eotTimeoutMs: 500,
     confidenceThreshold: 0.4,
   },
   startSpeakingPlan: {
     waitSeconds: 0.3,
     smartEndpointingPlan: { provider: "vapi" },
+  },
+  stopSpeakingPlan: {
+    numWords: 0,
+    voiceSeconds: 0.2,
+    backoffSeconds: 1.0,
   },
   model: {
     provider: "openai",

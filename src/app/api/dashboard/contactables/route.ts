@@ -8,7 +8,7 @@ export async function GET() {
     .from("prescriptions")
     .select(
       `
-      id, status, created_at, expires_at,
+      id, status, created_at,
       patients(id, full_name, phone_e164, last_4_cc)
     `
     )
@@ -24,7 +24,6 @@ export async function GET() {
       id: string;
       status: string;
       created_at: string;
-      expires_at: string | null;
       patients:
         | {
             id: string;
@@ -40,7 +39,7 @@ export async function GET() {
         id: r.id,
         status: r.status,
         created_at: r.created_at,
-        expires_at: r.expires_at,
+        expires_at: null,
         patient: r.patients,
       },
     ];

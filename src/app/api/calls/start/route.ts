@@ -3,9 +3,13 @@ import { supabaseServer } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const patient_id = body.patient_id;
-  if (!patient_id) {
-    return NextResponse.json({ error: "patient_id required" }, { status: 400 });
+  const patient_id = body.patient_id as string | undefined;
+  const phone_e164 = body.phone_e164 as string | undefined;
+  if (!patient_id && !phone_e164) {
+    return NextResponse.json(
+      { error: "patient_id or phone_e164 required" },
+      { status: 400 }
+    );
   }
 
   const apiKey = process.env.VAPI_API_KEY;
@@ -19,15 +23,18 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = supabaseServer();
-  const { data: patient, error } = await supabase
+  let query = supabase
     .from("patients")
-    .select("phone_e164")
-    .eq("id", patient_id)
-    .single();
+    .select("id, full_name, phone_e164");
+  query = patient_id ? query.eq("id", patient_id) : query.eq("phone_e164", phone_e164!);
+  const { data: patient, error } = await query.single();
 
   if (error || !patient) {
     return NextResponse.json({ error: "patient not found" }, { status: 404 });
   }
+
+  const firstName = patient.full_name.split(" ").slice(0, 2).join(" ");
+  const dynamicFirstMessage = `Buenos dias, le habla MediAgent del dispensario. Hablo con ${firstName}?`;
 
   const vapiRes = await fetch("https://api.vapi.ai/call", {
     method: "POST",
@@ -38,7 +45,15 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({
       assistantId,
       phoneNumberId,
-      customer: { number: patient.phone_e164 },
+      customer: { number: patient.phone_e164, name: patient.full_name },
+      assistantOverrides: {
+        firstMessage: dynamicFirstMessage,
+        variableValues: {
+          patient_name: patient.full_name,
+          patient_first_name: firstName,
+          patient_phone_e164: patient.phone_e164,
+        },
+      },
     }),
   });
 
@@ -50,7 +65,7 @@ export async function POST(req: NextRequest) {
   const data = await vapiRes.json();
 
   await supabase.from("call_logs").insert({
-    patient_id,
+    patient_id: patient.id,
     vapi_call_id: data.id,
     started_at: new Date().toISOString(),
   });

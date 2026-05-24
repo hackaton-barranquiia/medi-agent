@@ -90,13 +90,17 @@ export function CallList() {
     };
   }, [items]);
 
-  const triggerCall = async (patientId: string, patientName: string) => {
+  const triggerCall = async (
+    patientId: string,
+    patientName: string,
+    patientPhone: string
+  ) => {
     setPending((c) => new Set([...c, patientId]));
     try {
       const r = await fetch("/api/calls/start", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ patient_id: patientId }),
+        body: JSON.stringify({ patient_id: patientId, phone_e164: patientPhone }),
       });
       if (!r.ok) throw new Error(await r.text());
       toast.success(`Llamando a ${patientName}…`);
@@ -120,7 +124,11 @@ export function CallList() {
       .slice(0, 10);
     toast(`Encolando ${targets.length} llamadas`);
     for (const it of targets) {
-      await triggerCall(it.patient.id, it.patient.full_name);
+      await triggerCall(
+        it.patient.id,
+        it.patient.full_name,
+        it.patient.phone_e164
+      );
     }
   };
 
@@ -129,12 +137,6 @@ export function CallList() {
       {/* Section header */}
       <header className="mb-8 flex flex-col gap-6 border-b border-[var(--color-hairline)] pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="eyebrow">Pacientes por contactar</p>
-          <h2 className="mt-3 font-display text-[42px] leading-[0.95] tracking-[-0.04em] text-[#1f221c] lg:text-[56px]">
-            Disparar el <span className="text-[#9fe870]">cron</span>{" "}
-            <br className="hidden sm:block" />
-            <span className="text-[var(--color-body)]">manualmente.</span>
-          </h2>
           <p className="mt-4 max-w-[52ch] text-[14px] leading-snug text-[var(--color-body)]">
             Cada fila representa un paciente con fórmula lista o por vencer. Al
             tocar “Llamar”, el agente de voz colombiano marca, agenda el turno
@@ -261,7 +263,11 @@ export function CallList() {
                 <div className="flex justify-end">
                   <button
                     onClick={() =>
-                      triggerCall(it.patient.id, it.patient.full_name)
+                      triggerCall(
+                        it.patient.id,
+                        it.patient.full_name,
+                        it.patient.phone_e164
+                      )
                     }
                     disabled={isPending || inCall}
                     className="group flex items-center gap-2 border border-[#9fe870] bg-[#9fe870] px-3 py-2 text-[12px] font-semibold text-[#163300] transition hover:bg-[#cdffad] disabled:cursor-not-allowed disabled:opacity-50"

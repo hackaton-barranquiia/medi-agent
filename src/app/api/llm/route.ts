@@ -1,11 +1,21 @@
 import { NextRequest } from "next/server";
 
-// Custom LLM proxy: strips filler text before tool calls so Vapi executes
-// tool HTTP requests immediately without waiting for TTS to finish.
+// Custom LLM proxy: eliminates filler text before tool calls.
+//
+// Strategy — "fast-start":
+//   - Watch the first meaningful delta (after the role chunk).
+//   - If the first delta has tool_calls → enter TOOL mode: skip any
+//     filler text that appears later, emit tool call chunks immediately.
+//   - If the first delta has content → enter PASSTHROUGH mode: stream
+//     everything immediately (no buffering — avoids Vapi timeout).
+//
+// This works because GPT-4o signals its intent on the very first token:
+// either a function call OR a text response, never both at once at t=0.
+// When the model follows the system prompt ("no text before tools"),
+// the first delta will be tool_calls and filler is eliminated entirely.
 export async function POST(req: NextRequest) {
   const body = await req.json();
-
-  console.log("[llm-proxy] turn — messages:", body.messages?.length);
+  console.log("[llm-proxy] turn, messages:", body.messages?.length);
 
   const openaiResp = await fetch(
     "https://api.openai.com/v1/chat/completions",
@@ -33,9 +43,10 @@ export async function POST(req: NextRequest) {
       const decoder = new TextDecoder();
 
       let partial = "";
-      // Buffer content lines + finish_reason lines; emit only if no tool call follows
-      const textBuffer: string[] = [];
-      let hasToolCall = false;
+      // "initial" = waiting for first meaningful delta
+      // "passthrough" = conversational turn, stream everything
+      // "tool" = tool call turn, skip text, emit tool chunks
+      let mode: "initial" | "passthrough" | "tool" = "initial";
 
       const push = (s: string) => controller.enqueue(encoder.encode(s));
 
@@ -49,8 +60,7 @@ export async function POST(req: NextRequest) {
           partial = lines.pop() ?? "";
 
           for (const line of lines) {
-            // Skip blank lines — we add our own \n\n after each event
-            if (line === "") continue;
+            if (line === "") continue; // SSE blank separator — we add our own
 
             if (!line.startsWith("data: ")) {
               push(line + "\n");
@@ -60,15 +70,7 @@ export async function POST(req: NextRequest) {
             const data = line.slice(6).trim();
 
             if (data === "[DONE]") {
-              // Flush buffered text/finish_reason if no tool call
-              if (!hasToolCall && textBuffer.length > 0) {
-                console.log("[llm-proxy] conversational turn — flushing", textBuffer.length, "chunks");
-                for (const buffered of textBuffer) {
-                  push(buffered + "\n\n");
-                }
-              } else if (hasToolCall) {
-                console.log("[llm-proxy] tool call turn — discarded filler text");
-              }
+              console.log("[llm-proxy] done, mode:", mode);
               push("data: [DONE]\n\n");
               continue;
             }
@@ -91,23 +93,32 @@ export async function POST(req: NextRequest) {
             }
 
             const delta = chunk.choices?.[0]?.delta;
-            const finishReason = chunk.choices?.[0]?.finish_reason;
 
-            if (delta?.tool_calls) {
-              // Tool call — discard any buffered text, emit tool call immediately
-              console.log("[llm-proxy] tool_calls detected — discarding", textBuffer.length, "buffered text chunks");
-              hasToolCall = true;
-              textBuffer.length = 0;
+            if (mode === "initial") {
+              if (delta?.tool_calls) {
+                // First meaningful delta is a tool call → suppress future text
+                console.log("[llm-proxy] mode=tool (first delta is tool_call)");
+                mode = "tool";
+                push(line + "\n\n");
+              } else if (delta?.content) {
+                // First meaningful delta is text → passthrough everything
+                console.log("[llm-proxy] mode=passthrough (first delta is content)");
+                mode = "passthrough";
+                push(line + "\n\n");
+              } else {
+                // Role chunk or empty — emit and stay in initial
+                push(line + "\n\n");
+              }
+            } else if (mode === "passthrough") {
+              // Conversational turn: stream everything as-is
               push(line + "\n\n");
-            } else if (delta?.content) {
-              // Buffer text — don't emit until we know no tool call follows
-              textBuffer.push(line);
-            } else if (finishReason && !hasToolCall) {
-              // finish_reason for a text turn — buffer it so it emits AFTER content
-              textBuffer.push(line);
             } else {
-              // Role assignment chunk, or finish_reason:"tool_calls" — emit immediately
-              push(line + "\n\n");
+              // Tool call mode: emit tool_calls chunks, skip content
+              if (delta?.content) {
+                // Suppress filler text
+              } else {
+                push(line + "\n\n");
+              }
             }
           }
         }

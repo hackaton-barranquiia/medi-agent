@@ -1,11 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   getPatientContextLogic,
   guessHonorific,
 } from "@/lib/tools/get-patient-context";
-import { getAvailableSlots } from "@/lib/calls/availability";
+import {
+  getAvailableSlots,
+  bogotaDateString,
+  bogotaWeekdaySpanish,
+} from "@/lib/calls/availability";
 
 const COUNT_SPOKEN: Record<number, string> = {
   0: "ningún medicamento",
@@ -88,9 +90,8 @@ export async function buildCallContext(
   }
   while (slots.length < 3) slots.push(slots[slots.length - 1]);
 
-  const today = new Date();
-  const today_iso_date = format(today, "yyyy-MM-dd");
-  const today_weekday_spanish = format(today, "EEEE", { locale: es });
+  const today_iso_date = bogotaDateString();
+  const today_weekday_spanish = bogotaWeekdaySpanish();
 
   const variableValues: Record<string, string> = {
     first_name,

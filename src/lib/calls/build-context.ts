@@ -1,9 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { addDays, format } from "date-fns";
 import {
   getPatientContextLogic,
   guessHonorific,
 } from "@/lib/tools/get-patient-context";
+import { getAvailableSlots } from "@/lib/calls/availability";
 
 const COUNT_SPOKEN: Record<number, string> = {
   0: "ningún medicamento",
@@ -21,12 +21,6 @@ const COUNT_SPOKEN: Record<number, string> = {
 
 const COPAY_CENTS = 5800;
 const COPAY_SPOKEN = "cinco mil ochocientos pesos";
-
-const PICKUP_SPOKEN = [
-  "mañana a las nueve",
-  "mañana a las diez y media",
-  "mañana a las dos de la tarde",
-];
 
 function spokenMedName(name: string): string {
   return name.replace(/(\d+)\s*mg/gi, "$1 miligramos");
@@ -85,7 +79,12 @@ export async function buildCallContext(
       .filter((i) => i.available)
       .map((i) => spokenMedName(i.name))
   );
-  const delivery_date = format(addDays(new Date(), 1), "yyyy-MM-dd");
+
+  const slots = await getAvailableSlots(supabase, 3);
+  if (slots.length < 1) {
+    return { ok: false, status: 503, error: "no_available_slots" };
+  }
+  while (slots.length < 3) slots.push(slots[slots.length - 1]);
 
   const variableValues: Record<string, string> = {
     first_name,
@@ -94,17 +93,15 @@ export async function buildCallContext(
     prescription_id: ctx.prescription.id,
     available_count_spoken,
     medications_spoken,
-    slot_pickup_iso_1: ctx.suggested_slots[0],
-    slot_pickup_iso_2: ctx.suggested_slots[1],
-    slot_pickup_iso_3: ctx.suggested_slots[2],
-    slot_pickup_spoken_1: PICKUP_SPOKEN[0],
-    slot_pickup_spoken_2: PICKUP_SPOKEN[1],
-    slot_pickup_spoken_3: PICKUP_SPOKEN[2],
-    slot_delivery_iso_morning: ctx.suggested_slots[0],
-    slot_delivery_iso_afternoon: ctx.suggested_slots[2],
-    slot_delivery_spoken_morning: "mañana a las nueve de la mañana",
-    slot_delivery_spoken_afternoon: "mañana a las dos de la tarde",
-    delivery_date,
+    slot_1_iso: slots[0].iso,
+    slot_1_spoken: slots[0].spoken,
+    slot_1_date: slots[0].date,
+    slot_2_iso: slots[1].iso,
+    slot_2_spoken: slots[1].spoken,
+    slot_2_date: slots[1].date,
+    slot_3_iso: slots[2].iso,
+    slot_3_spoken: slots[2].spoken,
+    slot_3_date: slots[2].date,
     copay_cents: String(COPAY_CENTS),
     copay_spoken: COPAY_SPOKEN,
   };

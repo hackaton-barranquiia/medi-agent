@@ -20,6 +20,7 @@ NUMERO DEL CLIENTE: {{customer.number}}`;
 
 export const ASSISTANT_CONFIG = {
   silenceTimeoutSeconds: 30,
+  backgroundDenoisingEnabled: true,
   voice: {
     provider: "11labs",
     voiceId: "86V9x9hrQds83qf7zaGn", // Marcela — acento colombiano

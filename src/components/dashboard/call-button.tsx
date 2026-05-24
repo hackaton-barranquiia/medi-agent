@@ -22,11 +22,6 @@ export function CallButton({
         body: JSON.stringify({ patient_id: patientId }),
       });
       if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      // Notify call-log-panel of the new active call
-      window.dispatchEvent(
-        new CustomEvent("vapi:call-started", { detail: data.call_id })
-      );
       toast.success(`Llamando a ${patientName}...`);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Error desconocido";

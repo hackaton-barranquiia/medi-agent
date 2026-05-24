@@ -32,7 +32,12 @@ export function CallButton({
   };
 
   return (
-    <Button onClick={onClick} disabled={loading} size="sm">
+    <Button
+      onClick={onClick}
+      disabled={loading}
+      size="sm"
+      className="h-8 rounded-none border-0 bg-[#0f62fe] px-3 text-xs font-normal text-white hover:bg-[#0050e6]"
+    >
       {loading ? "Llamando..." : "Llamar"}
     </Button>
   );

@@ -14,6 +14,7 @@ type Appointment = {
   delivery_for_pending: boolean;
   delivery_date: string | null;
   prescription_id: string;
+  patient_name?: string;
 };
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
@@ -32,12 +33,55 @@ export function LiveAppointments() {
 
   useEffect(() => {
     const supabase = supabaseBrowser();
+    const load = async () => {
+      const { data } = await supabase
+        .from("appointments")
+        .select(
+          "id, slot_start, status, copay_cents, delivery_for_pending, delivery_date, prescription_id, prescriptions(patients(full_name))"
+        )
+        .order("slot_start");
 
-    supabase
-      .from("appointments")
-      .select("*")
-      .order("slot_start")
-      .then(({ data }) => setAppointments(data ?? []));
+      const parsed = (data ?? []).map((row) => {
+        const record = row as unknown as {
+          id: string;
+          slot_start: string;
+          status: string;
+          copay_cents: number;
+          delivery_for_pending: boolean;
+          delivery_date: string | null;
+          prescription_id: string;
+          prescriptions?:
+            | { patients: { full_name?: string } | { full_name?: string }[] | null }
+            | Array<{
+                patients:
+                  | { full_name?: string }
+                  | { full_name?: string }[]
+                  | null;
+              }>
+            | null;
+        };
+        const prescription = Array.isArray(record.prescriptions)
+          ? record.prescriptions[0]
+          : record.prescriptions;
+        const patients = prescription?.patients;
+        const patient = Array.isArray(patients) ? patients[0] : patients;
+
+        return {
+          id: record.id,
+          slot_start: record.slot_start,
+          status: record.status,
+          copay_cents: record.copay_cents,
+          delivery_for_pending: record.delivery_for_pending,
+          delivery_date: record.delivery_date,
+          prescription_id: record.prescription_id,
+          patient_name: patient?.full_name ?? "Paciente",
+        } satisfies Appointment;
+      });
+
+      setAppointments(parsed);
+    };
+
+    load();
 
     const channel = supabase
       .channel("appointments-changes")
@@ -46,15 +90,14 @@ export function LiveAppointments() {
         { event: "*", schema: "public", table: "appointments" },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            setAppointments((curr) => [...curr, payload.new as Appointment]);
+            load();
           } else if (payload.eventType === "UPDATE") {
-            setAppointments((curr) =>
-              curr.map((a) =>
-                a.id === (payload.new as Appointment).id
-                  ? (payload.new as Appointment)
-                  : a
-              )
-            );
+            setAppointments((curr) => {
+              const updated = payload.new as Appointment;
+              return curr.map((a) =>
+                a.id === updated.id ? { ...a, ...updated } : a
+              );
+            });
           }
         }
       )
@@ -74,35 +117,62 @@ export function LiveAppointments() {
   }
 
   return (
-    <div className="space-y-2">
-      {appointments.map((appt) => {
-        const meta = STATUS_LABELS[appt.status] ?? {
-          label: appt.status,
-          className: "",
-        };
-
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      {(["scheduled", "ready_for_pickup", "delivered"] as const).map((lane) => {
+        const laneItems = appointments.filter((a) => a.status === lane);
+        const laneMeta = STATUS_LABELS[lane];
         return (
-          <div key={appt.id} className="border border-[#e0e0e0] bg-white p-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-[#161616]">
-                {format(new Date(appt.slot_start), "HH:mm")}
+          <div key={lane} className="border border-[#e0e0e0] bg-[#f8f8f8]">
+            <div className="border-b border-[#e0e0e0] bg-white px-3 py-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-[#525252]">
+                {laneMeta?.label ?? lane}
               </p>
-              <Badge
-                className={`rounded-none border bg-transparent px-2 py-0.5 text-[11px] ${meta.className}`}
-              >
-                {meta.label}
-              </Badge>
             </div>
-            <p className="text-xs text-[#525252]">
-              Copago: ${(appt.copay_cents / 100).toLocaleString("es-CO")}
-            </p>
-            {appt.delivery_for_pending && (
-              <p className="text-xs text-[#8c6d1f]">
-                Domicilio pendiente: {appt.delivery_date}
-              </p>
-            )}
-            <div className="mt-2">
-              <AppointmentActions appointmentId={appt.id} status={appt.status} />
+            <div className="space-y-2 p-2">
+              {laneItems.length === 0 ? (
+                <p className="px-1 py-2 text-xs text-[#8d8d8d]">
+                  Sin pedidos en esta franja.
+                </p>
+              ) : (
+                laneItems.map((appt) => {
+                  const meta = STATUS_LABELS[appt.status] ?? {
+                    label: appt.status,
+                    className: "",
+                  };
+                  return (
+                    <div
+                      key={appt.id}
+                      className="border border-[#d9d9d9] bg-white p-2.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-[#161616]">
+                          {format(new Date(appt.slot_start), "HH:mm")}
+                        </p>
+                        <Badge
+                          className={`rounded-none border bg-transparent px-2 py-0.5 text-[11px] ${meta.className}`}
+                        >
+                          {meta.label}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-[#525252]">{appt.patient_name}</p>
+                      <p className="text-xs text-[#525252]">
+                        Copago: ${(appt.copay_cents / 100).toLocaleString("es-CO")}
+                      </p>
+                      {appt.delivery_for_pending && (
+                        <p className="text-xs text-[#8c6d1f]">
+                          Domicilio pendiente: {appt.delivery_date}
+                        </p>
+                      )}
+                      <div className="mt-2">
+                        <AppointmentActions
+                          appointmentId={appt.id}
+                          status={appt.status}
+                        />
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         );

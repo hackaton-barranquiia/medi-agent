@@ -11,7 +11,13 @@ export async function GET() {
   const end = new Date(start);
   end.setDate(end.getDate() + 1);
 
-  const [activeCallsRes, criticalQueueRes, overdueRes] = await Promise.all([
+  const [
+    activeCallsRes,
+    criticalQueueRes,
+    overdueRes,
+    readyRes,
+    pendingPickupRes,
+  ] = await Promise.all([
     supabase
       .from("call_logs")
       .select("*", { count: "exact", head: true })
@@ -27,6 +33,18 @@ export async function GET() {
       .select("*", { count: "exact", head: true })
       .eq("status", "scheduled")
       .lt("slot_start", new Date().toISOString()),
+    supabase
+      .from("appointments")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "ready_for_pickup")
+      .gte("slot_start", start.toISOString())
+      .lt("slot_start", end.toISOString()),
+    supabase
+      .from("appointments")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "scheduled")
+      .gte("slot_start", start.toISOString())
+      .lt("slot_start", end.toISOString()),
   ]);
 
   return NextResponse.json(
@@ -35,6 +53,8 @@ export async function GET() {
       active_calls: activeCallsRes.count ?? 0,
       critical_queue: criticalQueueRes.count ?? 0,
       overdue_slots: overdueRes.count ?? 0,
+      ready_for_pickup: readyRes.count ?? 0,
+      pending_pickup: pendingPickupRes.count ?? 0,
     },
     { headers: { "cache-control": "no-store" } }
   );

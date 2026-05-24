@@ -1,4 +1,5 @@
 import { Header } from "@/components/dashboard/header";
+import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PendingPrescriptions } from "@/components/dashboard/pending-prescriptions";
 import { LiveAppointments } from "@/components/dashboard/live-appointments";
 import { StockStatus } from "@/components/dashboard/stock-status";
@@ -15,6 +16,9 @@ export default function DashboardPage() {
           <p className="text-sm text-[#525252]">
             Monitorea llamadas, turnos y disponibilidad de medicamentos.
           </p>
+        </div>
+        <div className="mb-6">
+          <KpiStrip />
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <Card className="gap-3 rounded-none border border-[#e0e0e0] bg-white py-0 shadow-none ring-0 lg:col-span-2">

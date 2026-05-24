@@ -14,7 +14,16 @@ export async function PendingPrescriptions() {
     .in("status", ["ready", "expiring_soon"])
     .order("created_at", { ascending: false });
 
-  const items = (data ?? []).flatMap((rx) => {
+  const ordered = (data ?? []).sort((a, b) => {
+    const priority = (status: string) => (status === "expiring_soon" ? 0 : 1);
+    return (
+      priority(a.status as string) - priority(b.status as string) ||
+      new Date(String(b.created_at)).getTime() -
+        new Date(String(a.created_at)).getTime()
+    );
+  });
+
+  const items = ordered.flatMap((rx) => {
     const patient = Array.isArray(rx.patients) ? rx.patients[0] : rx.patients;
     if (!patient) return [];
     return [

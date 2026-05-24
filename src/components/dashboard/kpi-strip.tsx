@@ -27,12 +27,12 @@ export function KpiStrip() {
     return () => clearInterval(interval);
   }, []);
 
+  const compliance =
+    kpis && kpis.appointments_today > 0
+      ? Math.round((kpis.deliveries_today / kpis.appointments_today) * 100)
+      : 0;
+
   const cells = [
-    {
-      label: "Llamadas hoy",
-      value: kpis?.calls_today ?? "—",
-      title: "Cantidad de llamadas iniciadas hoy",
-    },
     {
       label: "Citas hoy",
       value: kpis?.appointments_today ?? "—",
@@ -43,16 +43,25 @@ export function KpiStrip() {
       value: kpis?.deliveries_today ?? "—",
       title: "Turnos marcados como entregados hoy",
     },
+    {
+      label: "Cumplimiento",
+      value: kpis ? `${compliance}%` : "—",
+      title: "Entregas de hoy sobre citas de hoy",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-px overflow-hidden border border-[#e0e0e0] bg-[#e0e0e0] md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
       {cells.map((c) => (
-        <div key={c.label} className="bg-white px-4 py-3" title={c.title}>
-          <p className="text-[11px] uppercase tracking-wide text-[#525252]">
+        <div
+          key={c.label}
+          className="rounded-2xl border border-black/10 bg-white px-4 py-3"
+          title={c.title}
+        >
+          <p className="text-[11px] uppercase tracking-wide text-[#454745]">
             {c.label}
           </p>
-          <p className="text-2xl font-light text-[#161616]">{c.value}</p>
+          <p className="text-2xl font-extrabold text-[#0e0f0c]">{c.value}</p>
         </div>
       ))}
     </div>

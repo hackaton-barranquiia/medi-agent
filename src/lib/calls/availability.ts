@@ -2,12 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { addDays, format, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 
-const TIMES_OF_DAY: { h: number; m: number }[] = [
-  { h: 9, m: 0 },
-  { h: 10, m: 30 },
-  { h: 14, m: 0 },
+export const TIMES_OF_DAY: { h: number; m: number; label: string }[] = [
+  { h: 9, m: 0, label: "09:00" },
+  { h: 10, m: 30, label: "10:30" },
+  { h: 14, m: 0, label: "14:00" },
 ];
-const HORIZON_DAYS = 7;
+export const HORIZON_DAYS = 7;
 
 const HOUR_WORDS: Record<number, string> = {
   1: "una",
@@ -63,6 +63,67 @@ function buildIso(day: Date, h: number, m: number): string {
   const hh = String(h).padStart(2, "0");
   const mm = String(m).padStart(2, "0");
   return `${date}T${hh}:${mm}:00-05:00`;
+}
+
+export type AvailabilityCheck =
+  | { available: true; iso: string; spoken: string; date: string }
+  | {
+      available: false;
+      reason: "taken" | "out_of_hours" | "out_of_horizon" | "invalid_input";
+      suggestion?: string;
+    };
+
+export async function checkSlotAvailability(
+  supabase: SupabaseClient,
+  date: string,
+  hour: string
+): Promise<AvailabilityCheck> {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  const hourMatch = /^(\d{1,2}):(\d{2})$/.exec(hour);
+  if (!match || !hourMatch) return { available: false, reason: "invalid_input" };
+
+  const day = new Date(`${date}T00:00:00-05:00`);
+  if (Number.isNaN(day.getTime())) return { available: false, reason: "invalid_input" };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const maxDay = addDays(today, HORIZON_DAYS);
+  if (day < today || day > maxDay) {
+    return { available: false, reason: "out_of_horizon" };
+  }
+
+  const h = parseInt(hourMatch[1], 10);
+  const m = parseInt(hourMatch[2], 10);
+  const slot = TIMES_OF_DAY.find((s) => s.h === h && s.m === m);
+  if (!slot) {
+    const nearest = nearestSlotLabel(h, m);
+    return { available: false, reason: "out_of_hours", suggestion: nearest };
+  }
+
+  const iso = buildIso(day, h, m);
+  const { data } = await supabase
+    .from("appointments")
+    .select("slot_start")
+    .eq("status", "scheduled")
+    .eq("slot_start", iso);
+
+  if ((data ?? []).length > 0) return { available: false, reason: "taken" };
+
+  return { available: true, iso, spoken: spokenSlot(day, h, m), date };
+}
+
+function nearestSlotLabel(h: number, m: number): string {
+  const target = h * 60 + m;
+  let best = TIMES_OF_DAY[0];
+  let bestDist = Infinity;
+  for (const s of TIMES_OF_DAY) {
+    const dist = Math.abs(s.h * 60 + s.m - target);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = s;
+    }
+  }
+  return best.label;
 }
 
 function spokenSlot(day: Date, h: number, m: number): string {

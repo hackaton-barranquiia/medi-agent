@@ -9,7 +9,7 @@ export async function StockStatus() {
 
   if (!data || data.length === 0) {
     return (
-      <p className="text-sm text-slate-500">No hay medicamentos registrados.</p>
+      <p className="text-sm text-[#525252]">No hay medicamentos registrados.</p>
     );
   }
 
@@ -21,10 +21,13 @@ export async function StockStatus() {
         return (
           <div
             key={m.name}
-            className="flex items-center justify-between text-sm"
+            className="flex items-center justify-between border border-[#e0e0e0] bg-white px-3 py-2 text-sm"
           >
-            <span>{m.name}</span>
-            <Badge variant={out ? "destructive" : low ? "secondary" : "outline"}>
+            <span className="text-[#161616]">{m.name}</span>
+            <Badge
+              className="rounded-none border px-2 py-0.5 text-[11px]"
+              variant={out ? "destructive" : low ? "secondary" : "outline"}
+            >
               {out ? "Agotado" : low ? `Bajo (${m.stock_qty})` : m.stock_qty}
             </Badge>
           </div>

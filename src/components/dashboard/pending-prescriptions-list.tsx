@@ -57,34 +57,39 @@ export function PendingPrescriptionsList({ items }: { items: PrescriptionRow[] }
 
   if (items.length === 0) {
     return (
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-[#525252]">
         No hay fórmulas pendientes por retirar.
       </p>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {items.map((rx) => {
         const inCall = activePatientIds.has(rx.patients.id);
         return (
           <div
             key={rx.id}
-            className={`flex items-center justify-between rounded-lg border bg-white p-4 transition-colors ${
-              inCall ? "border-blue-400 bg-blue-50 ring-1 ring-blue-200" : ""
+            className={`flex items-center justify-between border p-4 transition-colors ${
+              inCall
+                ? "border-[#0f62fe] bg-[#edf5ff]"
+                : "border-[#e0e0e0] bg-white"
             }`}
           >
             <div>
-              <p className="font-medium">{rx.patients.full_name}</p>
-              <p className="text-xs text-slate-500">{rx.patients.phone_e164}</p>
+              <p className="text-sm font-semibold text-[#161616]">
+                {rx.patients.full_name}
+              </p>
+              <p className="text-xs text-[#525252]">{rx.patients.phone_e164}</p>
               {inCall && (
-                <p className="mt-1 text-xs font-medium text-blue-600">
+                <p className="mt-1 text-xs font-medium text-[#0f62fe]">
                   Llamada en curso...
                 </p>
               )}
             </div>
             <div className="flex items-center gap-3">
               <Badge
+                className="rounded-none border px-2 py-0.5 text-[11px]"
                 variant={rx.status === "expiring_soon" ? "destructive" : "secondary"}
               >
                 {rx.status === "expiring_soon" ? "Vence pronto" : "Lista"}

@@ -45,7 +45,7 @@ export function LiveAppointments() {
 
   if (appointments.length === 0) {
     return (
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-[#525252]">
         Sin citas agendadas. Aparecerán aquí en tiempo real cuando el agente
         confirme un turno.
       </p>
@@ -53,23 +53,22 @@ export function LiveAppointments() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {appointments.map((appt) => (
-        <div
-          key={appt.id}
-          className="animate-in fade-in slide-in-from-top-2 rounded-lg border bg-white p-3"
-        >
+        <div key={appt.id} className="border border-[#e0e0e0] bg-white p-3">
           <div className="flex items-center justify-between">
-            <p className="font-medium">
+            <p className="text-sm font-semibold text-[#161616]">
               {format(new Date(appt.slot_start), "HH:mm")}
             </p>
-            <Badge>{appt.status === "scheduled" ? "Agendada" : appt.status}</Badge>
+            <Badge className="rounded-none border px-2 py-0.5 text-[11px]">
+              {appt.status === "scheduled" ? "Agendada" : appt.status}
+            </Badge>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-[#525252]">
             Copago: ${(appt.copay_cents / 100).toLocaleString("es-CO")}
           </p>
           {appt.delivery_for_pending && (
-            <p className="text-xs text-amber-600">
+            <p className="text-xs text-[#8c6d1f]">
               Domicilio pendiente: {appt.delivery_date}
             </p>
           )}

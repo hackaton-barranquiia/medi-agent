@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Manrope } from "next/font/google";
 import { Toaster } from "sonner";
-import { AppShell } from "@/components/shell/app-shell";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,8 +37,8 @@ export default function RootLayout({
       lang="es"
       className={`${inter.variable} ${manrope.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-full overflow-hidden bg-[var(--color-canvas-soft)] text-[var(--color-ink)]">
-        <AppShell>{children}</AppShell>
+      <body className="min-h-full bg-[var(--color-canvas-soft)] text-[var(--color-ink)]">
+        {children}
         <Toaster
           position="bottom-right"
           toastOptions={{

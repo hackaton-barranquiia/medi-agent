@@ -5,7 +5,7 @@ import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const TITLES: Record<string, { eyebrow: string; title: string }> = {
-  "/": { eyebrow: "01 — Tablero", title: "Operación del día" },
+  "/dashboard": { eyebrow: "01 — Tablero", title: "Operación del día" },
   "/llamadas": { eyebrow: "02 — Llamadas", title: "Centro de llamadas" },
   "/agenda": { eyebrow: "03 — Agenda", title: "Cronograma de pedidos" },
   "/orden-medica": {
@@ -16,7 +16,7 @@ const TITLES: Record<string, { eyebrow: string; title: string }> = {
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   const pathname = usePathname();
-  const ctx = TITLES[pathname ?? "/"] ?? TITLES["/"];
+  const ctx = TITLES[pathname ?? "/dashboard"] ?? TITLES["/dashboard"];
   const [now, setNow] = useState<Date>(() => new Date());
 
   useEffect(() => {

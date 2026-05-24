@@ -58,7 +58,7 @@ export function PendingPrescriptionsList({ items }: { items: PrescriptionRow[] }
   if (items.length === 0) {
     return (
       <p className="text-sm text-[#525252]">
-        No hay fórmulas pendientes por retirar.
+        No hay formulas pendientes por contactar.
       </p>
     );
   }
@@ -88,12 +88,15 @@ export function PendingPrescriptionsList({ items }: { items: PrescriptionRow[] }
               )}
             </div>
             <div className="flex items-center gap-3">
-              <Badge
-                className="rounded-none border px-2 py-0.5 text-[11px]"
-                variant={rx.status === "expiring_soon" ? "destructive" : "secondary"}
-              >
-                {rx.status === "expiring_soon" ? "Vence pronto" : "Lista"}
-              </Badge>
+              {rx.status === "expiring_soon" ? (
+                <Badge className="rounded-none border border-[#da1e28] bg-transparent px-2 py-0.5 text-[11px] text-[#da1e28]">
+                  Vence pronto
+                </Badge>
+              ) : (
+                <Badge className="rounded-none border border-[#525252] bg-transparent px-2 py-0.5 text-[11px] text-[#525252]">
+                  Lista
+                </Badge>
+              )}
               <CallButton
                 patientId={rx.patients.id}
                 patientName={rx.patients.full_name}

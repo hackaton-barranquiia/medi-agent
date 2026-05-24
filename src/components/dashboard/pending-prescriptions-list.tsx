@@ -57,8 +57,8 @@ export function PendingPrescriptionsList({ items }: { items: PrescriptionRow[] }
 
   if (items.length === 0) {
     return (
-      <p className="text-sm text-[#525252]">
-        No hay fórmulas pendientes por retirar.
+      <p className="text-sm text-[#9497a9]">
+        No hay formulas pendientes por contactar.
       </p>
     );
   }
@@ -70,30 +70,33 @@ export function PendingPrescriptionsList({ items }: { items: PrescriptionRow[] }
         return (
           <div
             key={rx.id}
-            className={`flex items-center justify-between border p-4 transition-colors ${
+            className={`flex items-center justify-between rounded-xl border p-4 transition-colors ${
               inCall
-                ? "border-[#0f62fe] bg-[#edf5ff]"
-                : "border-[#e0e0e0] bg-white"
+                ? "border-[#7132f5] bg-[rgba(133,91,251,0.08)]"
+                : "border-[#dedee5] bg-white"
             }`}
           >
             <div>
-              <p className="text-sm font-semibold text-[#161616]">
+              <p className="text-sm font-semibold text-[#101114]">
                 {rx.patients.full_name}
               </p>
-              <p className="text-xs text-[#525252]">{rx.patients.phone_e164}</p>
+              <p className="text-xs text-[#686b82]">{rx.patients.phone_e164}</p>
               {inCall && (
-                <p className="mt-1 text-xs font-medium text-[#0f62fe]">
+                <p className="mt-1 text-xs font-medium text-[#7132f5]">
                   Llamada en curso...
                 </p>
               )}
             </div>
             <div className="flex items-center gap-3">
-              <Badge
-                className="rounded-none border px-2 py-0.5 text-[11px]"
-                variant={rx.status === "expiring_soon" ? "destructive" : "secondary"}
-              >
-                {rx.status === "expiring_soon" ? "Vence pronto" : "Lista"}
-              </Badge>
+              {rx.status === "expiring_soon" ? (
+                <Badge className="rounded-md border border-[#d03238] bg-transparent px-2 py-0.5 text-[11px] text-[#d03238]">
+                  Vence pronto
+                </Badge>
+              ) : (
+                <Badge className="rounded-md border border-[#686b82] bg-transparent px-2 py-0.5 text-[11px] text-[#686b82]">
+                  Lista
+                </Badge>
+              )}
               <CallButton
                 patientId={rx.patients.id}
                 patientName={rx.patients.full_name}

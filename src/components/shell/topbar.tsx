@@ -8,34 +8,33 @@ const TITLES: Record<string, { eyebrow: string; title: string }> = {
   "/": { eyebrow: "01 — Tablero", title: "Operación del día" },
   "/llamadas": { eyebrow: "02 — Llamadas", title: "Centro de llamadas" },
   "/agenda": { eyebrow: "03 — Agenda", title: "Cronograma de pedidos" },
+  "/orden-medica": {
+    eyebrow: "04 — Orden médica",
+    title: "Búsqueda y orden al cliente",
+  },
 };
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   const pathname = usePathname();
   const ctx = TITLES[pathname ?? "/"] ?? TITLES["/"];
-  const [now, setNow] = useState<Date | null>(null);
+  const [now, setNow] = useState<Date>(() => new Date());
 
   useEffect(() => {
-    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(id);
   }, []);
 
-  const dateLabel = now
-    ? new Intl.DateTimeFormat("es-CO", {
-        weekday: "long",
-        day: "2-digit",
-        month: "long",
-      }).format(now)
-    : "—";
+  const dateLabel = new Intl.DateTimeFormat("es-CO", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  }).format(now);
 
-  const timeLabel = now
-    ? new Intl.DateTimeFormat("es-CO", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }).format(now)
-    : "—";
+  const timeLabel = new Intl.DateTimeFormat("es-CO", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now);
 
   return (
     <header className="relative flex shrink-0 items-center justify-between gap-4 border-b border-[var(--color-hairline)] bg-white px-4 py-4 lg:px-10 lg:py-6">

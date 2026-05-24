@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarRange, LayoutGrid, PhoneOutgoing, X } from "lucide-react";
+import {
+  CalendarRange,
+  ClipboardPlus,
+  LayoutGrid,
+  PhoneOutgoing,
+  X,
+} from "lucide-react";
 
 const NAV = [
   {
@@ -25,6 +31,13 @@ const NAV = [
     label: "Agenda",
     sub: "Pedidos del día",
     icon: CalendarRange,
+  },
+  {
+    href: "/orden-medica",
+    code: "04",
+    label: "Orden médica",
+    sub: "Buscar y llamar cliente",
+    icon: ClipboardPlus,
   },
 ];
 

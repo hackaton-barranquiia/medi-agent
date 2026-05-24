@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 
-// Custom LLM proxy: intercepts OpenAI stream and strips filler text before tool calls.
-// When GPT-4o decides to call a tool, it often generates "Verificando..." text first.
-// That text gets spoken via TTS, blocking the HTTP tool call for ~6s.
-// This proxy buffers content tokens and discards them if a tool call follows.
+// Custom LLM proxy: strips filler text before tool calls so Vapi executes
+// tool HTTP requests immediately without waiting for TTS to finish.
 export async function POST(req: NextRequest) {
   const body = await req.json();
+
+  console.log("[llm-proxy] turn — messages:", body.messages?.length);
 
   const openaiResp = await fetch(
     "https://api.openai.com/v1/chat/completions",
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
 
   if (!openaiResp.ok) {
     const err = await openaiResp.text();
+    console.error("[llm-proxy] OpenAI error:", openaiResp.status, err);
     return new Response(err, { status: openaiResp.status });
   }
 
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
       const decoder = new TextDecoder();
 
       let partial = "";
-      // Accumulate text-content SSE lines; only emit if response ends with no tool call
+      // Buffer content lines + finish_reason lines; emit only if no tool call follows
       const textBuffer: string[] = [];
       let hasToolCall = false;
 
@@ -48,11 +49,8 @@ export async function POST(req: NextRequest) {
           partial = lines.pop() ?? "";
 
           for (const line of lines) {
-            // SSE blank line — separator between events, always emit
-            if (line === "") {
-              push("\n");
-              continue;
-            }
+            // Skip blank lines — we add our own \n\n after each event
+            if (line === "") continue;
 
             if (!line.startsWith("data: ")) {
               push(line + "\n");
@@ -62,11 +60,14 @@ export async function POST(req: NextRequest) {
             const data = line.slice(6).trim();
 
             if (data === "[DONE]") {
-              // Flush buffered text only if this was a conversational turn (no tool call)
+              // Flush buffered text/finish_reason if no tool call
               if (!hasToolCall && textBuffer.length > 0) {
+                console.log("[llm-proxy] conversational turn — flushing", textBuffer.length, "chunks");
                 for (const buffered of textBuffer) {
                   push(buffered + "\n\n");
                 }
+              } else if (hasToolCall) {
+                console.log("[llm-proxy] tool call turn — discarded filler text");
               }
               push("data: [DONE]\n\n");
               continue;
@@ -85,26 +86,33 @@ export async function POST(req: NextRequest) {
             try {
               chunk = JSON.parse(data);
             } catch {
-              push(line + "\n");
+              push(line + "\n\n");
               continue;
             }
 
             const delta = chunk.choices?.[0]?.delta;
+            const finishReason = chunk.choices?.[0]?.finish_reason;
 
             if (delta?.tool_calls) {
-              // Tool call detected — discard any buffered text, emit tool call immediately
+              // Tool call — discard any buffered text, emit tool call immediately
+              console.log("[llm-proxy] tool_calls detected — discarding", textBuffer.length, "buffered text chunks");
               hasToolCall = true;
               textBuffer.length = 0;
               push(line + "\n\n");
             } else if (delta?.content) {
-              // Text content — buffer it; don't emit until we know no tool call follows
+              // Buffer text — don't emit until we know no tool call follows
+              textBuffer.push(line);
+            } else if (finishReason && !hasToolCall) {
+              // finish_reason for a text turn — buffer it so it emits AFTER content
               textBuffer.push(line);
             } else {
-              // Role assignment chunk or empty delta — emit immediately (needed by Vapi)
+              // Role assignment chunk, or finish_reason:"tool_calls" — emit immediately
               push(line + "\n\n");
             }
           }
         }
+      } catch (err) {
+        console.error("[llm-proxy] stream error:", err);
       } finally {
         controller.close();
       }

@@ -6,7 +6,7 @@
 
 ## El problema que resolvemos
 
-> **Un servicio farmacéutico no sabe quién va a llegar mañana a reclamar sus medicamentos. No avisa cuando están listos, no agenda turnos, no coordina con el paciente — cada entrega ocurre solo si el paciente llega, espera y tiene suerte. Quienes pagan ese costo son los más vulnerables: adultos mayores, discapacitados y pacientes crónicos que no pueden sostener una fila de 8 horas bajo el sol. Para ellos no es una incomodidad, es una barrera de acceso y a veces, cuesta hasta la vida.**
+> **Una farmacéutica no sabe quién va a llegar mañana a reclamar sus medicamentos. No avisa cuando están listos, no agenda turnos, no coordina con el paciente — cada entrega ocurre solo si el paciente llega, espera y tiene suerte. Quienes pagan ese costo son los más vulnerables: adultos mayores, discapacitados y pacientes crónicos que no pueden sostener una fila de 8 horas bajo el sol. Para ellos no es una incomodidad, es una barrera de acceso y a veces, cuesta hasta la vida.**
 
 ---
 
@@ -16,7 +16,7 @@
 | Bloque            | Tiempo      | Objetivo                                               |
 | ----------------- | ----------- | ------------------------------------------------------ |
 | Gancho            | 0:00 – 0:35 | La consecuencia más visible de no tener la herramienta |
-| Problema          | 0:35 – 1:05 | Lo que le cuesta al servicio farmacéutico operar sin ella        |
+| Problema          | 0:35 – 1:05 | Lo que le cuesta a la farmacéutica operar sin ella        |
 | Solución + modelo | 1:05 – 1:35 | Qué construimos y quién paga                           |
 | Demo en vivo      | 1:35 – 2:30 | El jurado lo experimenta                               |
 | Cierre            | 2:30 – 3:00 | El antes y el después                                  |
@@ -30,13 +30,13 @@
 
 > "Cecilia Quintero tenía 70 años. Enfermedad crónica. Necesitaba un medicamento que no recibía desde diciembre.
 >
-> El 24 de febrero fue al servicio farmacéutico a reclamarla.
+> El 24 de febrero fue a la farmacéutica a reclamarla.
 >
 > Llegó a la ventanilla. Le dijeron que no había.
 >
 > Se sentó. Se levantó. Y se desplomó.
 >
-> Murió dentro del servicio farmacéutico, esperando el medicamento que necesitaba para no morir.
+> Murió dentro de la farmacéutica, esperando el medicamento que necesitaba para no morir.
 >
 > ¿Cuántas personas como Cecilia salen sin saber si su medicamento está?"
 
@@ -44,11 +44,11 @@
 
 ### [0:35 – 1:05] Problema
 
-> "El servicio farmacéutico no falla porque no tenga información. Falla porque esa información está desconectada de la entrega.
+> "La farmacéutica no falla porque no tenga información. Falla porque esa información está desconectada de la entrega.
 >
 > Tiene inventario. Tiene fórmulas activas. Tiene fechas de vencimiento. Tiene pacientes esperando. Pero todo vive separado: una cosa es la bodega, otra la fórmula, otra la llamada, otra la fila.
 >
-> Entonces el último tramo se vuelve manual y reactivo. El paciente aparece sin saber si hay stock. El servicio farmacéutico atiende al que logró llegar. Los medicamentos se vencen mientras otros pacientes siguen esperando. Y cuando falta algo, nadie queda encargado de cerrar esa entrega.
+> Entonces el último tramo se vuelve manual y reactivo. El paciente aparece sin saber si hay stock. La farmacéutica atiende al que logró llegar. Los medicamentos se vencen mientras otros pacientes siguen esperando. Y cuando falta algo, nadie queda encargado de cerrar esa entrega.
 >
 > Y aquí en Barranquilla: 513 tutelas por medicamentos en menos de cinco meses.
 >
@@ -66,9 +66,9 @@
 >
 > Una plataforma que conecta inventario, fórmula y paciente. Detecta cuándo un medicamento está listo, próximo a vencer o pendiente de retiro; llama al paciente automáticamente; lo autentica con los últimos 4 dígitos de su cédula; confirma qué se puede entregar hoy, qué queda pendiente y cómo se va a cerrar la entrega: retiro programado o domicilio.
 >
-> El servicio farmacéutico deja de reaccionar al paciente que llegó primero y empieza a gestionar la entrega antes de que el problema se convierta en reclamo, tutela o riesgo clínico. Y el paciente — el adulto mayor, el discapacitado, el crónico — deja de perseguir un medicamento que el sistema ya sabía que necesitaba.
+> La farmacéutica deja de reaccionar al paciente que llegó primero y empieza a gestionar la entrega antes de que el problema se convierta en reclamo, tutela o riesgo clínico. Y el paciente — el adulto mayor, el discapacitado, el crónico — deja de perseguir un medicamento que el sistema ya sabía que necesitaba.
 >
-> ¿Quién paga? El servicio farmacéutico, la IPS, la EPS.
+> ¿Quién paga? La farmacéutica, la IPS, la EPS.
 >
 > Porque cada tutela tiene un costo legal. Cada medicamento vencido es pérdida directa. Y la Circular 017 no perdona.
 >
@@ -82,7 +82,7 @@
 
 > *[Mostrar dashboard]*
 >
-> "Esto es lo que ve el servicio farmacéutico ahora mismo. Semáforo rojo: un medicamento vence en 2 días y el paciente no ha sido contactado. El sistema dispara la llamada automáticamente."
+> "Esto es lo que ve la farmacéutica ahora mismo. Semáforo rojo: un medicamento vence en 2 días y el paciente no ha sido contactado. El sistema dispara la llamada automáticamente."
 
 > *[El jurado contesta el teléfono]*
 >
@@ -90,7 +90,7 @@
 
 > *[Mostrar dashboard en tiempo real]*
 >
-> "La cita acaba de aparecer aquí. El servicio farmacéutico ya sabe quién llega, cuándo, y qué va a buscar. Dejó de operar a ciegas."
+> "La cita acaba de aparecer aquí. La farmacéutica ya sabe quién llega, cuándo, y qué va a buscar. Dejó de operar a ciegas."
 
 > *[Avanzar el estado]*
 >
@@ -104,7 +104,7 @@
 >
 > Antes tomaba hasta 8 horas — si llegaba a alcanzar turno.
 >
-> Con MediAgent el servicio farmacéutico tiene visibilidad, tiene control, y tiene el canal para llegar al paciente antes de que salga de su casa.
+> Con MediAgent la farmacéutica tiene visibilidad, tiene control, y tiene el canal para llegar al paciente antes de que salga de su casa.
 >
 > Cero pacientes que llegan sin turno. Cero medicamentos vencidos en bodega. 
 >
@@ -123,9 +123,9 @@
 | Medicamentos pendientes en Nueva EPS (crecimiento) | +160% | Infobae, octubre 2025 |
 | PQRS en salud, primer semestre 2025 | 978.177 (+36% vs H1 2024) | Supersalud / ConsultorSalud |
 | Costo administrativo por tutela | [VERIFICAR — consultar Defensoría o Minsalud] | — |
-| Pérdida por medicamentos vencidos sin entregar | [VERIFICAR — pedir dato a servicio farmacéutico aliado] | — |
+| Pérdida por medicamentos vencidos sin entregar | [VERIFICAR — pedir dato a farmacéutica aliado] | — |
 
-> **Argumento de cierre ante el jurado:** cada tutela por medicamentos es una falla de entrega documentada. Si el servicio farmacéutico hubiera llamado al paciente antes del vencimiento, esa tutela no existiría. MediAgent convierte esa tutela en una cita.
+> **Argumento de cierre ante el jurado:** cada tutela por medicamentos es una falla de entrega documentada. Si la farmacéutica hubiera llamado al paciente antes del vencimiento, esa tutela no existiría. MediAgent convierte esa tutela en una cita.
 
 ---
 
@@ -136,7 +136,7 @@
 - **Circular Externa 017 de Supersalud:** establece indicadores de calidad y acceso que incluyen tiempos de dispensación — su incumplimiento genera sanciones directas.
 - **Plazo de 48 horas para dispensación:** referenciado recurrentemente por la Defensoría del Pueblo como estándar exigible a EPS e IPS en sus informes anuales de tutelas. [VERIFICAR resolución específica de Minsalud que lo codifica — posiblemente Resolución 1604 de 2013 o Circular posterior]
 
-> **Punto clave:** el servicio farmacéutico no está ante una opción de mejora. Está ante una obligación legal con consecuencias medibles: tutelas, sanciones de Supersalud y pérdida de habilitación.
+> **Punto clave:** la farmacéutica no está ante una opción de mejora. Está ante una obligación legal con consecuencias medibles: tutelas, sanciones de Supersalud y pérdida de habilitación.
 
 ---
 

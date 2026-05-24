@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileText, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { WebCallButton } from "@/components/llamadas/web-call-button";
+import Vapi from "@vapi-ai/web";
 
 type Contactable = {
   id: string;
@@ -14,6 +14,7 @@ type Contactable = {
     full_name: string;
     phone_e164: string;
     last_4_cc: string | null;
+    cc_number: string | null;
   };
 };
 
@@ -22,6 +23,7 @@ type Client = {
   full_name: string;
   phone_e164: string;
   last_4_cc: string | null;
+  cc_number: string | null;
 };
 
 type Medication = {
@@ -50,9 +52,9 @@ export default function OrdenMedicaPage() {
   const [medications, setMedications] = useState<Medication[] | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([emptyItem()]);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
-  const [webCallClient, setWebCallClient] = useState<Client | null>(null);
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const vapiRef = useRef<Vapi | null>(null);
 
   const clearCallTimeout = () => {
     if (timeoutRef.current) {
@@ -94,9 +96,27 @@ export default function OrdenMedicaPage() {
     const timer = setTimeout(() => {
       void loadData();
     }, 0);
+
+    const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
+    if (publicKey) {
+      const vapi = new Vapi(publicKey);
+      vapi.on("call-start", () => {
+        toast.success("Llamada web iniciada");
+      });
+      vapi.on("call-end", () => {
+        toast.message("Llamada web finalizada");
+      });
+      vapi.on("error", () => {
+        toast.error("Error en la sesión web de llamada");
+      });
+      vapiRef.current = vapi;
+    }
+
     return () => {
       clearTimeout(timer);
       clearCallTimeout();
+      vapiRef.current?.stop();
+      vapiRef.current = null;
     };
   }, []);
 
@@ -110,6 +130,7 @@ export default function OrdenMedicaPage() {
         full_name: row.patient.full_name,
         phone_e164: row.patient.phone_e164,
         last_4_cc: row.patient.last_4_cc,
+        cc_number: row.patient.cc_number,
       });
     }
     return Array.from(byId.values()).sort((a, b) =>
@@ -124,6 +145,7 @@ export default function OrdenMedicaPage() {
       return (
         client.full_name.toLowerCase().includes(normalizedQuery) ||
         client.phone_e164.includes(normalizedQuery) ||
+        (client.cc_number ?? "").includes(normalizedQuery) ||
         (client.last_4_cc ?? "").includes(normalizedQuery)
       );
     });
@@ -151,13 +173,56 @@ export default function OrdenMedicaPage() {
     );
   };
 
+  const startWebCall = async (client: Client) => {
+    try {
+      const vapi = vapiRef.current;
+      if (!vapi) {
+        throw new Error(
+          "NEXT_PUBLIC_VAPI_PUBLIC_KEY no configurada para llamada web automática."
+        );
+      }
+
+      if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+      }
+
+      const response = await fetch("/api/calls/build-context", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          patient_id: client.id,
+          phone_e164: client.phone_e164,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => null);
+        throw new Error(err?.error ?? "No se pudo construir el contexto web");
+      }
+
+      const payload = (await response.json()) as {
+        assistantId: string;
+        variableValues: Record<string, unknown>;
+      };
+
+      await vapi.start(payload.assistantId, {
+        variableValues: payload.variableValues,
+      });
+    } catch (error: unknown) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Falló la llamada web automática"
+      );
+    }
+  };
+
   const queueWebCallSession = (client: Client) => {
     clearCallTimeout();
-    setWebCallClient(null);
-    toast.message("Orden registrada. Habilitando sesión web en 5 segundos.");
+    toast.message("Orden registrada. Iniciando llamada web en 5 segundos.");
     timeoutRef.current = setTimeout(() => {
-      setWebCallClient(client);
-      toast.success(`Sesión web lista para ${client.full_name}.`);
+      void startWebCall(client);
     }, 5000);
   };
 
@@ -221,8 +286,8 @@ export default function OrdenMedicaPage() {
         </h2>
         <p className="mt-4 max-w-[58ch] text-[14px] leading-snug text-[var(--color-body)]">
           Usa la misma fuente de pacientes contactables del módulo de llamadas.
-          Al guardar, se crea la prescripción real en base de datos y se habilita
-          la misma sesión de llamada web que usa el módulo de llamadas.
+          Al guardar, se crea la prescripción real en base de datos y la llamada
+          web se dispara automáticamente después de 5 segundos.
         </p>
       </header>
 
@@ -238,14 +303,14 @@ export default function OrdenMedicaPage() {
           <div className="space-y-4 p-5">
             <label className="block space-y-1">
               <span className="eyebrow text-[10px]">
-                Últimos 4 de cédula, celular o nombre
+                Cédula, celular o nombre
               </span>
               <div className="flex items-center border border-[var(--color-hairline)] bg-white px-3">
                 <Search className="h-4 w-4 text-[var(--color-mute)]" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Ej: 2689 o +573046002689"
+                  placeholder="Ej: 1144821987 o +573046002689 o José"
                   className="h-10 w-full bg-transparent px-2 text-[13px] text-[#1f221c] outline-none"
                 />
               </div>
@@ -275,7 +340,10 @@ export default function OrdenMedicaPage() {
                           {client.full_name}
                         </p>
                         <p className="mt-1 font-mono text-[12px] text-[var(--color-body)]">
-                          CC ••••{client.last_4_cc ?? "----"} · {client.phone_e164}
+                          CC{" "}
+                          {client.cc_number ??
+                            (client.last_4_cc ? client.last_4_cc : "No registrada")}{" "}
+                          · {client.phone_e164}
                         </p>
                       </button>
                     </li>
@@ -370,24 +438,8 @@ export default function OrdenMedicaPage() {
               <FileText className="h-4 w-4" />
               {isSavingOrder
                 ? "Guardando orden..."
-                : "Guardar orden y preparar llamada web"}
+                : "Guardar orden y disparar llamada web"}
             </button>
-
-            {webCallClient && (
-              <div className="border border-[var(--color-hairline)] bg-[#f4f5f1] px-4 py-3">
-                <p className="eyebrow text-[10px]">sesión web</p>
-                <div className="mt-1 flex items-center justify-between gap-3">
-                  <p className="text-[13px] font-semibold text-[#1f221c]">
-                    Iniciar llamada web con {webCallClient.full_name}
-                  </p>
-                  <WebCallButton
-                    patientId={webCallClient.id}
-                    patientName={webCallClient.full_name}
-                    patientPhone={webCallClient.phone_e164}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </section>
       </div>

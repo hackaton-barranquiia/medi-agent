@@ -18,6 +18,7 @@ type Item = {
     full_name: string;
     phone_e164: string;
     last_4_cc: string | null;
+    cc_number: string | null;
   };
 };
 
@@ -246,7 +247,8 @@ export function CallList() {
                   {it.patient.phone_e164}
                 </p>
                 <p className="font-mono text-[13px] text-[var(--color-body)]">
-                  ····{it.patient.last_4_cc ?? "····"}
+                  {it.patient.cc_number ??
+                    (it.patient.last_4_cc ? it.patient.last_4_cc : "No registrada")}
                 </p>
                 <div>
                   {urgent ? (

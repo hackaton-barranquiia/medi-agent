@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FileText, Plus, Search, Trash2 } from "lucide-react";
+import { FileText, PhoneOff, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Vapi from "@vapi-ai/web";
 
@@ -39,6 +39,8 @@ type OrderItem = {
   qty: number;
 };
 
+type CallStatus = "idle" | "queued" | "starting" | "active";
+
 const emptyItem = (): OrderItem => ({
   id: crypto.randomUUID(),
   medication_id: "",
@@ -52,6 +54,8 @@ export default function OrdenMedicaPage() {
   const [medications, setMedications] = useState<Medication[] | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([emptyItem()]);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [callStatus, setCallStatus] = useState<CallStatus>("idle");
+  const [callClient, setCallClient] = useState<Client | null>(null);
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const vapiRef = useRef<Vapi | null>(null);
@@ -101,12 +105,16 @@ export default function OrdenMedicaPage() {
     if (publicKey) {
       const vapi = new Vapi(publicKey);
       vapi.on("call-start", () => {
+        setCallStatus("active");
         toast.success("Llamada web iniciada");
       });
       vapi.on("call-end", () => {
+        setCallStatus("idle");
+        setCallClient(null);
         toast.message("Llamada web finalizada");
       });
       vapi.on("error", () => {
+        setCallStatus("idle");
         toast.error("Error en la sesión web de llamada");
       });
       vapiRef.current = vapi;
@@ -175,6 +183,7 @@ export default function OrdenMedicaPage() {
 
   const startWebCall = async (client: Client) => {
     try {
+      setCallStatus("starting");
       const vapi = vapiRef.current;
       if (!vapi) {
         throw new Error(
@@ -210,6 +219,7 @@ export default function OrdenMedicaPage() {
         variableValues: payload.variableValues,
       });
     } catch (error: unknown) {
+      setCallStatus("idle");
       toast.error(
         error instanceof Error
           ? error.message
@@ -220,10 +230,19 @@ export default function OrdenMedicaPage() {
 
   const queueWebCallSession = (client: Client) => {
     clearCallTimeout();
+    setCallClient(client);
+    setCallStatus("queued");
     toast.message("Orden registrada. Iniciando llamada web en 5 segundos.");
     timeoutRef.current = setTimeout(() => {
       void startWebCall(client);
     }, 5000);
+  };
+
+  const hangupCall = () => {
+    clearCallTimeout();
+    vapiRef.current?.stop();
+    setCallStatus("idle");
+    setCallClient(null);
   };
 
   const saveOrderAndCall = async () => {
@@ -440,6 +459,29 @@ export default function OrdenMedicaPage() {
                 ? "Guardando orden..."
                 : "Guardar orden y disparar llamada web"}
             </button>
+
+            {callStatus !== "idle" && callClient && (
+              <div className="border border-[var(--color-hairline)] bg-[#f4f5f1] px-4 py-3">
+                <p className="eyebrow text-[10px]">estado de llamada</p>
+                <div className="mt-1 flex items-center justify-between gap-3">
+                  <p className="text-[13px] font-semibold text-[#1f221c]">
+                    {callStatus === "queued" &&
+                      `Preparando llamada con ${callClient.full_name}...`}
+                    {callStatus === "starting" &&
+                      `Iniciando llamada con ${callClient.full_name}...`}
+                    {callStatus === "active" &&
+                      `Llamada activa con ${callClient.full_name}`}
+                  </p>
+                  <button
+                    onClick={hangupCall}
+                    className="inline-flex items-center gap-1.5 border border-[#d03238] bg-[#fbeded] px-3 py-2 text-[12px] font-semibold text-[#a72027] transition hover:bg-[#f5dadc]"
+                  >
+                    <PhoneOff className="h-4 w-4" />
+                    Colgar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </div>

@@ -28,6 +28,17 @@ const PICKUP_SPOKEN = [
   "mañana a las dos de la tarde",
 ];
 
+function spokenMedName(name: string): string {
+  return name.replace(/(\d+)\s*mg/gi, "$1 miligramos");
+}
+
+function joinSpanishList(items: string[]): string {
+  if (items.length === 0) return "";
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} y ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} y ${items[items.length - 1]}`;
+}
+
 export type CallContextResult =
   | {
       ok: true;
@@ -69,6 +80,11 @@ export async function buildCallContext(
   const available_count_spoken =
     COUNT_SPOKEN[ctx.prescription.available_count] ??
     `${ctx.prescription.available_count} medicamentos`;
+  const medications_spoken = joinSpanishList(
+    ctx.prescription.items
+      .filter((i) => i.available)
+      .map((i) => spokenMedName(i.name))
+  );
   const delivery_date = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
   const variableValues: Record<string, string> = {
@@ -77,6 +93,7 @@ export async function buildCallContext(
     last_4_cc: patient.last_4_cc,
     prescription_id: ctx.prescription.id,
     available_count_spoken,
+    medications_spoken,
     slot_pickup_iso_1: ctx.suggested_slots[0],
     slot_pickup_iso_2: ctx.suggested_slots[1],
     slot_pickup_iso_3: ctx.suggested_slots[2],

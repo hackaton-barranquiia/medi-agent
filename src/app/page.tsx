@@ -2,6 +2,7 @@ import { Header } from "@/components/dashboard/header";
 import { PendingPrescriptions } from "@/components/dashboard/pending-prescriptions";
 import { LiveAppointments } from "@/components/dashboard/live-appointments";
 import { StockStatus } from "@/components/dashboard/stock-status";
+import { CallLogPanel } from "@/components/dashboard/call-log-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +47,16 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="px-4 py-4">
                 <StockStatus />
+              </CardContent>
+            </Card>
+            <Card className="gap-3 rounded-none border border-[#e0e0e0] bg-white py-0 shadow-none ring-0">
+              <CardHeader className="rounded-none border-b border-[#e0e0e0] px-4 py-3">
+                <CardTitle className="text-base font-normal text-[#161616]">
+                  Log de llamada en vivo
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 py-4">
+                <CallLogPanel />
               </CardContent>
             </Card>
           </div>

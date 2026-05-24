@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 
-export async function GET() {
-  const start = new Date();
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const dateParam = searchParams.get("date");
+
+  const start = dateParam ? new Date(`${dateParam}T00:00:00`) : new Date();
+  if (Number.isNaN(start.getTime())) {
+    return NextResponse.json(
+      { error: "Invalid date format. Use YYYY-MM-DD." },
+      { status: 400 }
+    );
+  }
   start.setHours(0, 0, 0, 0);
   const end = new Date(start);
   end.setDate(end.getDate() + 1);

@@ -38,7 +38,7 @@
 >
 > Murió dentro del dispensario, esperando el medicamento que necesitaba para no morir.
 >
-> ¿Cuántas Cecilias más hay en este momento esperando recibir sus medicamentos?"
+> ¿Cuántas personas como Cecilia salen sin saber si su medicamento está?"
 
 ---
 
@@ -105,14 +105,4 @@
 > Eso es MediAgent."
 
 ---
-
-## Notas de entrega
-
-- **Gancho:** despacio desde el inicio. Pausa larga después de "se desplomó." Las últimas dos líneas — la familia, y "eso es lo que construimos" — se dicen casi en voz baja. Sin drama extra, el caso habla solo.
-- **Problema:** "le falta la herramienta para usarla" — frase final dicha con calma. No es acusación, es diagnóstico.
-- **Solución:** "MediAgent es esa herramienta" — directo, sin rodeos. El tono cambia a seguro y rápido desde aquí.
-- **Modelo de negocio:** "¿Quién paga?" — natural, inevitable. No defensivo.
-- **Demo:** dashboard abierto y llamada lista antes de subir. No improvisar la parte técnica.
-- **Cierre:** "Eso es MediAgent." — punto, silencio.
-- **Ritmo:** gancho y problema lentos. Solución y demo rápidos. El contraste de ritmo refuerza el contraste de la propuesta.
 

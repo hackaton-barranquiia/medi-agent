@@ -75,7 +75,7 @@ export async function getPatientContextLogic(
   };
 }
 
-function guessHonorific(fullName: string): "Doña" | "Don" {
+export function guessHonorific(fullName: string): "Doña" | "Don" {
   const female = ["luz", "maria", "maría", "carmen", "rosa", "ana", "marta", "lucía", "lucia", "patricia"];
   const first = fullName.split(" ")[0].toLowerCase();
   return female.some((n) => first.startsWith(n)) ? "Doña" : "Don";

@@ -51,17 +51,17 @@ export function KpiStrip() {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+    <div className="grid grid-cols-3 gap-2">
       {cells.map((c) => (
         <div
           key={c.label}
-          className="rounded-2xl border border-black/10 bg-white px-4 py-3"
+          className="rounded-2xl border border-[#dedee5] bg-white px-4 py-3"
           title={c.title}
         >
-          <p className="text-[11px] uppercase tracking-wide text-[#454745]">
+          <p className="text-[11px] uppercase tracking-wide text-[#9497a9]">
             {c.label}
           </p>
-          <p className="text-2xl font-extrabold text-[#0e0f0c]">{c.value}</p>
+          <p className="text-2xl font-extrabold text-[#101114]">{c.value}</p>
         </div>
       ))}
     </div>

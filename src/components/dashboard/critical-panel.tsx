@@ -28,8 +28,8 @@ export function CriticalPanel() {
   }, []);
 
   return (
-    <div className="rounded-3xl border border-[#d03238] bg-[#fff5f5] px-4 py-3">
-      <div className="flex items-center gap-2 text-[#da1e28]">
+    <div className="rounded-2xl border border-[#d03238] bg-[#fff5f5] px-4 py-3">
+      <div className="flex items-center gap-2 text-[#d03238]">
         <AlertTriangle className="h-4 w-4" />
         <p className="text-xs font-medium uppercase tracking-wide">
           Critico operativo
@@ -37,19 +37,19 @@ export function CriticalPanel() {
       </div>
       <div className="mt-2 grid grid-cols-2 gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-[#525252]">
+          <p className="text-[11px] uppercase tracking-wide text-[#686b82]">
             Formulas urgentes
           </p>
-          <p className="text-2xl font-extrabold text-[#0e0f0c]">
+          <p className="text-2xl font-extrabold text-[#101114]">
             {overview?.critical_queue ?? "—"}
           </p>
         </div>
         <div>
-          <div className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-[#525252]">
-            <ClockAlert className="h-3.5 w-3.5 text-[#da1e28]" />
+          <div className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-[#686b82]">
+            <ClockAlert className="h-3.5 w-3.5 text-[#d03238]" />
             Horarios vencidos
           </div>
-          <p className="text-2xl font-extrabold text-[#0e0f0c]">
+          <p className="text-2xl font-extrabold text-[#101114]">
             {overview?.overdue_slots ?? "—"}
           </p>
         </div>

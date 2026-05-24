@@ -1,4 +1,4 @@
-import { Clock3, PackageCheck } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { format } from "date-fns";
 import { AppointmentActions } from "@/components/dashboard/appointment-actions";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -23,6 +23,12 @@ function getPatientName(
   return patient?.full_name;
 }
 
+const STATUS_META: Record<string, { label: string; color: string }> = {
+  scheduled: { label: "Por alistar", color: "text-[#686b82] border-[#dedee5]" },
+  ready_for_pickup: { label: "Alistado", color: "text-[#5741d8] border-[#5741d8]" },
+  delivered: { label: "Entregado", color: "text-[#149e61] border-[#149e61]" },
+};
+
 export async function ScheduledOrders() {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
@@ -38,64 +44,73 @@ export async function ScheduledOrders() {
     .gte("slot_start", start.toISOString())
     .lt("slot_start", end.toISOString())
     .order("slot_start", { ascending: true })
-    .limit(12);
+    .limit(24);
 
   const rows = (data ?? []) as unknown as AppointmentRow[];
 
   if (rows.length === 0) {
     return (
-      <p className="text-sm text-[#525252]">
-        No hay pedidos agendados para alistar en las proximas horas.
+      <p className="text-sm text-[#9497a9]">
+        No hay pedidos agendados para alistar hoy.
       </p>
     );
   }
 
+  // Group by hour
+  const grouped = new Map<string, AppointmentRow[]>();
+  for (const row of rows) {
+    const hourKey = format(new Date(row.slot_start), "HH:00");
+    if (!grouped.has(hourKey)) grouped.set(hourKey, []);
+    grouped.get(hourKey)!.push(row);
+  }
+
   return (
-    <div className="space-y-2">
-      {rows.map((row) => {
-        const patientName = getPatientName(row.prescriptions) ?? "Paciente";
-        const isReady = row.status === "ready_for_pickup";
-        return (
-          <div
-            key={row.id}
-            className="grid grid-cols-1 items-center gap-2 border border-[#e0e0e0] bg-white px-3 py-2"
-          >
-            <div>
-              <div className="flex items-center gap-2 text-[#161616]">
-                <Clock3 className="h-3.5 w-3.5 text-[#0f62fe]" />
-                <p className="text-sm font-semibold">
-                  {format(new Date(row.slot_start), "HH:mm")}
-                </p>
-                <span className="text-xs text-[#525252]">- {patientName}</span>
-              </div>
-              <p className="text-xs text-[#525252]">
-                {isReady
-                  ? "Pedido listo para entrega en modulo"
-                  : "Preparar pedido antes del turno"}
-              </p>
-            </div>
-            <div
-              className={`flex w-fit items-center gap-1 border px-2 py-1 text-[11px] ${
-                row.status === "delivered"
-                  ? "border-[#198038] text-[#198038]"
-                  : isReady
-                    ? "border-[#8a3ffc] text-[#8a3ffc]"
-                    : "border-[#0f62fe] text-[#0f62fe]"
-              }`}
-            >
-              <PackageCheck className="h-3 w-3" />
-              {row.status === "delivered"
-                ? "Entregado"
-                : isReady
-                  ? "Alistado"
-                  : "Por alistar"}
-            </div>
-            <div>
-              <AppointmentActions appointmentId={row.id} status={row.status} />
-            </div>
+    <div className="space-y-4">
+      {Array.from(grouped.entries()).map(([hour, slots]) => (
+        <div key={hour}>
+          <div className="mb-2 flex items-center gap-2">
+            <Clock3 className="h-3.5 w-3.5 text-[#686b82]" />
+            <span className="text-xs font-semibold uppercase tracking-wide text-[#686b82]">
+              {hour}
+            </span>
+            <span className="text-xs text-[#9497a9]">
+              {slots.length} pedido{slots.length !== 1 ? "s" : ""}
+            </span>
           </div>
-        );
-      })}
+          <div className="space-y-1.5">
+            {slots.map((row) => {
+              const patientName = getPatientName(row.prescriptions) ?? "Paciente";
+              const meta = STATUS_META[row.status] ?? STATUS_META.scheduled;
+              return (
+                <div
+                  key={row.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-[#dedee5] bg-white px-3 py-2.5"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[#101114]">
+                      {patientName}
+                    </p>
+                    <p className="text-xs text-[#686b82]">
+                      {format(new Date(row.slot_start), "HH:mm")}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span
+                      className={`rounded-xl border px-2 py-0.5 text-[11px] font-medium ${meta.color}`}
+                    >
+                      {meta.label}
+                    </span>
+                    <AppointmentActions
+                      appointmentId={row.id}
+                      status={row.status}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

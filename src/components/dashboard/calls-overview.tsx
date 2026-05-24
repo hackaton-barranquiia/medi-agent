@@ -30,24 +30,24 @@ export function CallsOverview() {
   }, []);
 
   return (
-    <div className="rounded-3xl border border-black/10 bg-white px-4 py-3">
-      <div className="flex items-center gap-2 text-[#0e0f0c]">
+    <div className="rounded-2xl border border-[#dedee5] bg-white px-4 py-3">
+      <div className="flex items-center gap-2 text-[#101114]">
         <PhoneCall className="h-4 w-4" />
         <p className="text-xs font-medium uppercase tracking-wide">
           Centro de llamadas
         </p>
       </div>
-      <p className="mt-1 text-3xl font-extrabold text-[#0e0f0c]">
+      <p className="mt-1 text-3xl font-extrabold text-[#101114]">
         {kpis?.calls_today ?? "—"}
       </p>
-      <p className="text-xs text-[#454745]">
+      <p className="text-xs text-[#9497a9]">
         Contactos iniciados hoy para confirmar retiro sin fila.
       </p>
-      <div className="mt-2 border-t border-black/10 pt-2">
-        <p className="text-[11px] uppercase tracking-wide text-[#454745]">
+      <div className="mt-2 border-t border-[#dedee5] pt-2">
+        <p className="text-[11px] uppercase tracking-wide text-[#9497a9]">
           Llamadas en curso
         </p>
-        <p className="text-lg font-semibold text-[#0e0f0c]">
+        <p className="text-lg font-semibold text-[#101114]">
           {kpis?.active_calls ?? "—"}
         </p>
       </div>

@@ -36,7 +36,7 @@ export function CallButton({
       onClick={onClick}
       disabled={loading}
       size="sm"
-      className="h-8 rounded-none border-0 bg-[#0f62fe] px-3 text-xs font-normal text-white hover:bg-[#0050e6]"
+      className="h-8 rounded-xl border-0 bg-[#7132f5] px-3 text-xs font-medium text-white hover:bg-[#5741d8]"
     >
       {loading ? "Llamando..." : "Llamar"}
     </Button>

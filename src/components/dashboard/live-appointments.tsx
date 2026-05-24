@@ -18,14 +18,11 @@ type Appointment = {
 };
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  scheduled: { label: "Agendada", className: "border-[#0f62fe] text-[#0f62fe]" },
-  ready_for_pickup: {
-    label: "Alistada",
-    className: "border-[#8a3ffc] text-[#8a3ffc]",
-  },
-  delivered: { label: "Entregada", className: "border-[#198038] text-[#198038]" },
-  no_show: { label: "No asistio", className: "border-[#525252] text-[#525252]" },
-  cancelled: { label: "Cancelada", className: "border-[#da1e28] text-[#da1e28]" },
+  scheduled: { label: "Agendada", className: "border-[#7132f5] text-[#7132f5]" },
+  ready_for_pickup: { label: "Alistada", className: "border-[#5741d8] text-[#5741d8]" },
+  delivered: { label: "Entregada", className: "border-[#149e61] text-[#149e61]" },
+  no_show: { label: "No asistio", className: "border-[#dedee5] text-[#686b82]" },
+  cancelled: { label: "Cancelada", className: "border-[#d03238] text-[#d03238]" },
 };
 
 export function LiveAppointments() {
@@ -110,8 +107,8 @@ export function LiveAppointments() {
 
   if (appointments.length === 0) {
     return (
-      <p className="text-sm text-[#525252]">
-        Aun no hay turnos agendados - esperando llamadas.
+      <p className="text-sm text-[#9497a9]">
+        Aun no hay turnos agendados — esperando llamadas.
       </p>
     );
   }
@@ -122,15 +119,15 @@ export function LiveAppointments() {
         const laneItems = appointments.filter((a) => a.status === lane);
         const laneMeta = STATUS_LABELS[lane];
         return (
-          <div key={lane} className="border border-[#e0e0e0] bg-[#f8f8f8]">
-            <div className="border-b border-[#e0e0e0] bg-white px-3 py-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-[#525252]">
+          <div key={lane} className="rounded-xl border border-[#dedee5] bg-[#f5f5f7]">
+            <div className="rounded-t-xl border-b border-[#dedee5] bg-white px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#686b82]">
                 {laneMeta?.label ?? lane}
               </p>
             </div>
             <div className="space-y-2 p-2">
               {laneItems.length === 0 ? (
-                <p className="px-1 py-2 text-xs text-[#8d8d8d]">
+                <p className="px-1 py-2 text-xs text-[#9497a9]">
                   Sin pedidos en esta franja.
                 </p>
               ) : (
@@ -142,25 +139,25 @@ export function LiveAppointments() {
                   return (
                     <div
                       key={appt.id}
-                      className="border border-[#d9d9d9] bg-white p-2.5"
+                      className="rounded-xl border border-[#dedee5] bg-white p-2.5"
                     >
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-[#161616]">
+                        <p className="text-sm font-semibold text-[#101114]">
                           {format(new Date(appt.slot_start), "HH:mm")}
                         </p>
                         <Badge
-                          className={`rounded-none border bg-transparent px-2 py-0.5 text-[11px] ${meta.className}`}
+                          className={`rounded-md border bg-transparent px-2 py-0.5 text-[11px] ${meta.className}`}
                         >
                           {meta.label}
                         </Badge>
                       </div>
-                      <p className="text-xs text-[#525252]">{appt.patient_name}</p>
-                      <p className="text-xs text-[#525252]">
+                      <p className="text-xs text-[#686b82]">{appt.patient_name}</p>
+                      <p className="text-xs text-[#686b82]">
                         Copago: ${(appt.copay_cents / 100).toLocaleString("es-CO")}
                       </p>
                       {appt.delivery_for_pending && (
-                        <p className="text-xs text-[#8c6d1f]">
-                          Domicilio pendiente: {appt.delivery_date}
+                        <p className="text-xs text-[#686b82]">
+                          Domicilio: {appt.delivery_date}
                         </p>
                       )}
                       <div className="mt-2">

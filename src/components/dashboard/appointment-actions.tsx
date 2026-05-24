@@ -41,7 +41,7 @@ export function AppointmentActions({ appointmentId, status }: Props) {
       <Button
         size="sm"
         variant="outline"
-        className="rounded-none"
+        className="rounded-xl border-[#5741d8] text-[#5741d8] hover:bg-[rgba(133,91,251,0.08)]"
         onClick={() => call("mark-ready")}
         disabled={loading}
       >
@@ -53,7 +53,7 @@ export function AppointmentActions({ appointmentId, status }: Props) {
     return (
       <Button
         size="sm"
-        className="rounded-none"
+        className="rounded-xl bg-[#7132f5] hover:bg-[#5741d8]"
         onClick={() => call("mark-delivered")}
         disabled={loading}
       >

@@ -12,7 +12,7 @@ export async function GET() {
       patients(id, full_name, phone_e164, last_4_cc)
     `
     )
-    .in("status", ["ready", "expiring_soon"])
+    .in("status", ["ready", "expiring_soon", "picked_up"])
     .order("created_at", { ascending: false });
 
   if (error) {

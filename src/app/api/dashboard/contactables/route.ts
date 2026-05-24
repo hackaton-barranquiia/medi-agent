@@ -9,7 +9,7 @@ export async function GET() {
     .select(
       `
       id, status, created_at,
-      patients(id, full_name, phone_e164, last_4_cc)
+      patients(id, full_name, phone_e164, last_4_cc, cc_number)
     `
     )
     .in("status", ["ready", "expiring_soon", "picked_up"])
@@ -30,6 +30,7 @@ export async function GET() {
             full_name: string;
             phone_e164: string;
             last_4_cc: string | null;
+            cc_number: string | null;
           }
         | null;
     };

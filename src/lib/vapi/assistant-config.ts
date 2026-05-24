@@ -1,22 +1,24 @@
 // Vapi assistant configuration — source of truth for assistant ID c9b4cf72-90c3-4d5b-a57f-10bd6d4f7262
 // Apply changes with `npm run sync:assistant` or update the Vapi dashboard manually.
 
-export const SYSTEM_PROMPT = `INSTRUCCION CRITICA: Cuando necesites llamar una tool, NO generes ningun texto antes. Ejecuta la tool directamente como primera accion. Solo habla despues de recibir el resultado.
+export const SYSTEM_PROMPT = `NO llames ninguna tool. Usa solo los datos de este prompt.
 
-Eres MediAgent, asistente de voz del dispensario farmaceutico. Espanol, calidez, frases cortas.
+Eres MediAgent, asistente de voz del dispensario farmaceutico. Hablas con dona Luz Marina Patino.
+Espanol colombiano, calidez, frases cortas. Los numeros siempre en palabras: "cuatro mil quinientos pesos", "nueve de la manana".
+
+DATOS (no revelar directamente):
+- Cedula ultimos 4 validos: 4729
+- Listo para recoger: Losartan cincuenta miligramos, una caja
+- Pendiente sin stock: Atorvastatina veinte miligramos — llega en cuatro dias, se envia a domicilio
+- Copago: cuatro mil quinientos pesos
+- Turnos disponibles: manana lunes a las nueve de la manana / a las dos de la tarde
 
 FLUJO:
-1. SALUDO: Confirma que hablas con la persona correcta.
-2. AUTENTICACION: Pide los ultimos cuatro digitos de la cedula. Llama verify_cc con phone_e164={{customer.number}} y los digitos. Si valid=false pide que repita. Si falla dos veces, despidete.
-3. CONTEXTO: Llama get_patient_context con phone_e164={{customer.number}}. Anuncia cuantos medicamentos tiene listos.
-4. AGENDAMIENTO:
-   - all_available=true: ofrece dos horarios de suggested_slots. Al confirmar llama schedule_appointment.
-   - all_available=false: agenda disponibles, propone domicilio para pendientes con delivery_for_pending=true.
-5. CIERRE: Confirma turno, hora y copago. Despidete.
-
-Si tool falla: problema tecnico, llame al dispensario. Termina.
-
-NUMERO DEL CLIENTE: {{customer.number}}`;
+1. SALUDO: "Buenos dias, hablo con dona Luz Marina Patino?"
+2. AUTENTICACION: Pide los ultimos cuatro digitos de la cedula. Si dice 4729: valido, continua. Otro numero: pide que repita. Dos fallos: despidete.
+3. CONTEXTO: Informa que tiene lista una caja de Losartan y que la Atorvastatina esta pendiente por stock.
+4. AGENDAMIENTO: Ofrece los dos turnos disponibles. Al confirmar: repite el turno elegido, el copago y que la Atorvastatina llega a domicilio.
+5. CIERRE: Despidete calidamente.`;
 
 export const ASSISTANT_CONFIG = {
   silenceTimeoutSeconds: 30,
@@ -53,80 +55,5 @@ export const ASSISTANT_CONFIG = {
     temperature: 0.1,
     maxTokens: 120,
     messages: [{ role: "system", content: SYSTEM_PROMPT }],
-    tools: [
-      {
-        type: "function",
-        function: {
-          name: "verify_cc",
-          description: "Verifica los ultimos 4 digitos de la cedula.",
-          parameters: {
-            type: "object",
-            properties: {
-              phone_e164: { type: "string" },
-              last_4_cc: {
-                type: "string",
-                description: "4 digitos exactos, ej: 4729",
-              },
-            },
-            required: ["phone_e164", "last_4_cc"],
-          },
-        },
-        messages: [
-          { type: "request-start", content: "Verificando." },
-          { type: "request-response-delayed", content: "Ya casi." },
-        ],
-        server: {
-          url: "https://turnos-agent-production.up.railway.app/api/tools/verify-cc",
-          timeoutSeconds: 8,
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "get_patient_context",
-          description:
-            "Obtiene formula, stock y horarios. Solo llamar despues de autenticar.",
-          parameters: {
-            type: "object",
-            properties: { phone_e164: { type: "string" } },
-            required: ["phone_e164"],
-          },
-        },
-        messages: [
-          { type: "request-start", content: "Consultando tu formula." },
-          { type: "request-response-delayed", content: "Ya casi." },
-        ],
-        server: {
-          url: "https://turnos-agent-production.up.railway.app/api/tools/get-patient-context",
-          timeoutSeconds: 8,
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "schedule_appointment",
-          description: "Crea la cita de recogida.",
-          parameters: {
-            type: "object",
-            properties: {
-              prescription_id: { type: "string" },
-              slot_start: { type: "string" },
-              copay_cents: { type: "integer" },
-              delivery_for_pending: { type: "boolean" },
-              delivery_date: { type: "string" },
-            },
-            required: ["prescription_id", "slot_start", "copay_cents"],
-          },
-        },
-        messages: [
-          { type: "request-start", content: "Agendando tu cita." },
-          { type: "request-response-delayed", content: "Ya casi." },
-        ],
-        server: {
-          url: "https://turnos-agent-production.up.railway.app/api/tools/schedule-appointment",
-          timeoutSeconds: 8,
-        },
-      },
-    ],
   },
 };

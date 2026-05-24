@@ -71,7 +71,8 @@ export async function getPatientContextLogic(
       pending_count,
     },
     suggested_slots: [slot(9, 0), slot(10, 30), slot(14, 0)],
-    default_copay_cop: 5800,
+    copay_cents: 580000,
+    copay_cop: 5800,
   };
 }
 

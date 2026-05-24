@@ -12,7 +12,7 @@ import {
 
 const NAV = [
   {
-    href: "/",
+    href: "/dashboard",
     code: "01",
     label: "Tablero",
     sub: "Indicadores del día",
@@ -68,7 +68,7 @@ export function Sidebar({
         {/* Wordmark */}
         <div className="flex items-center justify-between px-6 pt-6 pb-5">
           <Link
-            href="/"
+            href="/dashboard"
             className="flex items-baseline gap-1 group"
             onClick={onClose}
           >
@@ -99,10 +99,7 @@ export function Sidebar({
         <nav className="flex flex-col gap-1 px-3">
           {NAV.map((item) => {
             const Icon = item.icon;
-            const active =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname?.startsWith(item.href);
+            const active = pathname?.startsWith(item.href);
             return (
               <Link
                 key={item.href}

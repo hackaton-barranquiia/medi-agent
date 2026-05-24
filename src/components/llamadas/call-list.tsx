@@ -6,6 +6,7 @@ import { ArrowRight, Phone, PhoneCall } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { WebCallButton } from "./web-call-button";
 
 type Item = {
   id: string;
@@ -181,7 +182,7 @@ export function CallList() {
 
       {/* Table */}
       <div className="border border-[var(--color-hairline)] bg-[#ffffff]">
-        <div className="hidden grid-cols-[40px_2fr_1.2fr_1fr_140px_120px] items-center gap-4 border-b border-[var(--color-hairline)] bg-[#f4f5f1] px-6 py-3 lg:grid">
+        <div className="hidden grid-cols-[40px_2fr_1.2fr_1fr_140px_170px] items-center gap-4 border-b border-[var(--color-hairline)] bg-[#f4f5f1] px-6 py-3 lg:grid">
           <span className="eyebrow text-[10px]">#</span>
           <span className="eyebrow text-[10px]">Paciente</span>
           <span className="eyebrow text-[10px]">Teléfono</span>
@@ -224,7 +225,7 @@ export function CallList() {
             return (
               <li
                 key={it.id}
-                className={`relative grid grid-cols-1 gap-3 px-6 py-4 transition lg:grid-cols-[40px_2fr_1.2fr_1fr_140px_120px] lg:items-center lg:gap-4 ${
+                className={`relative grid grid-cols-1 gap-3 px-6 py-4 transition lg:grid-cols-[40px_2fr_1.2fr_1fr_140px_170px] lg:items-center lg:gap-4 ${
                   inCall ? "bg-[#9fe870]/15" : "hover:bg-[#f4f5f1]/60"
                 }`}
               >
@@ -260,7 +261,12 @@ export function CallList() {
                     </span>
                   )}
                 </div>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-end gap-2">
+                  <WebCallButton
+                    patientId={it.patient.id}
+                    patientName={it.patient.full_name}
+                    patientPhone={it.patient.phone_e164}
+                  />
                   <button
                     onClick={() =>
                       triggerCall(

@@ -11,8 +11,8 @@
 
 | Dato | Cifra | Fuente |
 |---|---|---|
-| Tiempo de espera para tomar un turno en dispensario | Hasta 12 horas de anticipación | Infobae, marzo 2025 |
-| Tiempo en fila física una vez en el dispensario | 2 a 8 horas documentadas | Pulzo 2022 · Radio Guatapuri 2025 |
+| Tiempo de espera para tomar un turno en el servicio farmacéutico | Hasta 12 horas de anticipación | Infobae, marzo 2025 |
+| Tiempo en fila física una vez en el servicio farmacéutico | 2 a 8 horas documentadas | Pulzo 2022 · Radio Guatapuri 2025 |
 | Quejas PQRS en salud en el primer semestre de 2025 | 978.177 (+36 % vs 2024) | ConsultorSalud / Supersalud, agosto 2025 |
 | Quejas relacionadas con barreras de acceso | 93 % del total de PQRS | ConsultorSalud, agosto 2025 |
 | Quejas ante Supersalud por negación de medicamentos (2022–2025) | 28 % del total | Defensoría del Pueblo, noviembre 2025 |
@@ -25,11 +25,11 @@
 
 ### El dato humano — verificado en prensa
 
-- <br>**Cali, marzo 2025:** cientos de adultos mayores llegaban al dispensario Disfarma **12 horas antes** de la apertura, con cartones y almohadas en el suelo, para asegurar uno de los 400 turnos diarios. *(Infobae, El País de Cali, marzo 2025)*
+- <br>**Cali, marzo 2025:** cientos de adultos mayores llegaban al servicio farmacéutico Disfarma **12 horas antes** de la apertura, con cartones y almohadas en el suelo, para asegurar uno de los 400 turnos diarios. *(Infobae, El País de Cali, marzo 2025)*
 
-- **Cúcuta, febrero 2026:** una adulta mayor de Cúcuta murió de un paro cardiorrespiratorio **dentro del dispensario de CAFAM** mientras esperaba en fila para reclamar medicamentos que no recibía desde hacía varios meses. *(Chicanoticias, febrero 2026)*
+- **Cúcuta, febrero 2026:** una adulta mayor de Cúcuta murió de un paro cardiorrespiratorio **dentro del servicio farmacéutico de CAFAM** mientras esperaba en fila para reclamar medicamentos que no recibía desde hacía varios meses. *(Chicanoticias, febrero 2026)*
 
-- **Calarcá, 2025:** adultos mayores fueron amenazados con arma blanca en la fila del dispensario. *(Infobae, marzo 2025)*
+- **Calarcá, 2025:** adultos mayores fueron amenazados con arma blanca en la fila del servicio farmacéutico. *(Infobae, marzo 2025)*
 
 - **Valledupar, 2025:** 8 horas de espera, más de 120 personas —la mayoría adultos mayores— atendidas por 3 funcionarios, con personas tendidas en el piso. *(Radio Guatapuri, marzo 2025)*
 
@@ -59,15 +59,15 @@
 
 **El sistema actúa antes de que el paciente lo pida.**
 
-MediAgent es un agente de voz que, a partir del número de fórmula médica, detecta cuándo un medicamento está listo o próximo a vencer en bodega, llama proactivamente al paciente, autentica con los últimos 4 dígitos de la cédula, confirma disponibilidad de stock, agenda el turno en el horario de menor afluencia e informa el copago antes de que el paciente salga de casa. Si hay ítems pendientes por stock parcial, agenda la entrega a domicilio. El dispensario ve todo en un dashboard en tiempo real.
+MediAgent es un agente de voz que, a partir del número de fórmula médica, detecta cuándo un medicamento está listo o próximo a vencer en bodega, llama proactivamente al paciente, autentica con los últimos 4 dígitos de la cédula, confirma disponibilidad de stock, agenda el turno en el horario de menor afluencia e informa el copago antes de que el paciente salga de casa. Si hay ítems pendientes por stock parcial, agenda la entrega a domicilio. El servicio farmacéutico ve todo en un dashboard en tiempo real.
 
-**Hipótesis a demostrar en el hackathon:** un agente de voz puede reducir el tiempo efectivo del paciente en el proceso de reclamación de medicamentos de hasta 8 horas a menos de 5 minutos — sin app, sin cuenta, sin fricción — y darle al dispensario visibilidad predictiva de su demanda.
+**Hipótesis a demostrar en el hackathon:** un agente de voz puede reducir el tiempo efectivo del paciente en el proceso de reclamación de medicamentos de hasta 8 horas a menos de 5 minutos — sin app, sin cuenta, sin fricción — y darle al servicio farmacéutico visibilidad predictiva de su demanda.
 
 ---
 
 ## 4. Jobs to be done
 
-| Funcional | Emocional | B2B — Dispensario |
+| Funcional | Emocional | B2B — Servicio farmacéutico |
 |---|---|---|
 | "Quiero recoger mis medicamentos sin perder media jornada — sin filas, sin llamadas, sin sorpresas." | "Quiero sentir que el sistema de salud me cuida activamente, no que tengo que luchar contra él cada mes." | "Quiero predecir la demanda de mañana, eliminar las filas espontáneas y no tener medicamentos que se venzan sin ser recogidos." |
 
@@ -104,7 +104,7 @@ MediAgent es un agente de voz que, a partir del número de fórmula médica, det
 | 3 | Autenticación por últimos 4 de cédula | Antes de revelar datos clínicos. Si falla 2 veces: no revela nada. Más natural que un PIN nuevo. | **DEMO** |
 | 4 | Confirmación de disponibilidad (stock completo y parcial) | El paciente sabe antes de salir si su medicamento está en stock. | **DEMO** |
 | 5 | Agendamiento de turno por voz | Distribuye la demanda en franjas horarias. Elimina la fila espontánea. | **DEMO** |
-| 6 | Dashboard dispensario en tiempo real | Citas del día · semáforo de vencimientos · alertas de no-contactados · demanda por franja horaria. | **DEMO** |
+| 6 | Dashboard del servicio farmacéutico en tiempo real | Citas del día · semáforo de vencimientos · alertas de no-contactados · demanda por franja horaria. | **DEMO** |
 | 7 | Info de copago al confirmar turno | El paciente llega sabiendo cuánto va a pagar. | **DEMO** — hardcoded en voz, no calculado |
 | 8 | Manejo de objeción "no puedo esa hora" | El agente ofrece franja alternativa en lugar de terminar la llamada. | **DEMO** — sólo en prompt del agente, sin lógica adicional |
 | 9 | Entrega a domicilio para ítems pendientes | Se agenda verbalmente y se inserta el registro en DB. | **DEMO** — sin flujo posterior real |
@@ -179,7 +179,7 @@ MediAgent es un agente de voz que, a partir del número de fórmula médica, det
 
 ## 8. Dashboard interno — alcance acotado
 
-Panel de control para el operador del dispensario. Muestra únicamente:
+Panel de control para el operador del servicio farmacéutico. Muestra únicamente:
 
 1. **Stock actual por medicamento** — disponible hoy, bajo mínimos, próximo a vencer (semáforo rojo/verde)
 2. **Órdenes del día** — listado con estado: Pendiente / Agendado / En ruta / Entregado
@@ -204,7 +204,7 @@ Panel de control para el operador del dispensario. Muestra únicamente:
 
 | Tiempo | Acción |
 |---|---|
-| 0:00 – 0:30 | *"En febrero de 2026 una adulta mayor murió de un paro cardíaco dentro de un dispensario en Cúcuta. Estaba esperando en fila. Son las 978.177 quejas del primer semestre de 2025. Este es el problema que resuelve MediAgent."* |
+| 0:00 – 0:30 | *"En febrero de 2026 una adulta mayor murió de un paro cardíaco dentro de un servicio farmacéutico en Cúcuta. Estaba esperando en fila. Son las 978.177 quejas del primer semestre de 2025. Este es el problema que resuelve MediAgent."* |
 | 0:30 – 1:00 | Mostrar dashboard: semáforo rojo — medicamento vence en 2 días, paciente sin contactar. El sistema dispara la llamada. |
 | 1:00 – 1:45 | El jurado contesta. El agente autentica con los últimos 4 dígitos de la cédula, confirma disponibilidad, agenda el turno e informa el copago. La cita aparece en el dashboard en tiempo real. |
 | 1:45 – 2:30 | Stock parcial detectado: el agente agenda lo disponible para el turno y propone fecha de entrega a domicilio para los ítems pendientes. Todo el flujo en una sola llamada. |

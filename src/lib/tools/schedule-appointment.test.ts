@@ -62,6 +62,32 @@ describe("scheduleAppointmentLogic", () => {
     expect(inserted[0].delivery_date).toBeNull();
   });
 
+  it("coerces a peso-shaped copay (< 100000) into cents", async () => {
+    const inserted: Record<string, unknown>[] = [];
+    const supabase = mockSupabase(inserted);
+
+    await scheduleAppointmentLogic(supabase, {
+      prescription_id: "rx-4",
+      slot_start: "2026-05-24T09:00:00-05:00",
+      copay_cents: 5800,
+    });
+
+    expect(inserted[0].copay_cents).toBe(580000);
+  });
+
+  it("leaves a cent-shaped copay (>= 100000) untouched", async () => {
+    const inserted: Record<string, unknown>[] = [];
+    const supabase = mockSupabase(inserted);
+
+    await scheduleAppointmentLogic(supabase, {
+      prescription_id: "rx-5",
+      slot_start: "2026-05-24T09:00:00-05:00",
+      copay_cents: 580000,
+    });
+
+    expect(inserted[0].copay_cents).toBe(580000);
+  });
+
   it("throws when insert fails", async () => {
     const supabase = {
       from: () => ({

@@ -16,12 +16,17 @@ export async function scheduleAppointmentLogic(
   const slotStartDate = new Date(args.slot_start);
   const slotEndDate = addMinutes(slotStartDate, 15);
 
+  // LLM sometimes confuses pesos with cents and passes the COP value as copay_cents.
+  // Real copays in cents are always >= 100000 (1000 COP), so a smaller value is treated as pesos.
+  const copay_cents =
+    args.copay_cents < 100000 ? args.copay_cents * 100 : args.copay_cents;
+
   const row = {
     prescription_id: args.prescription_id,
     slot_start: args.slot_start,
     slot_end: slotEndDate.toISOString(),
     status: "scheduled",
-    copay_cents: args.copay_cents,
+    copay_cents,
     delivery_for_pending: args.delivery_for_pending ?? false,
     delivery_date: args.delivery_date ?? null,
   };

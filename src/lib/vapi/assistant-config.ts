@@ -42,8 +42,7 @@ export const ASSISTANT_CONFIG = {
     smartEndpointingPlan: { provider: "vapi" },
   },
   model: {
-    provider: "custom-llm",
-    url: "https://turnos-agent-production.up.railway.app/api/llm",
+    provider: "openai",
     model: "gpt-4o",
     temperature: 0.1,
     maxTokens: 120,

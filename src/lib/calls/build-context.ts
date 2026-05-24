@@ -32,7 +32,7 @@ export type CallContextResult =
   | {
       ok: true;
       patient: { id: string; full_name: string; phone_e164: string };
-      variableValues: Record<string, string | number>;
+      variableValues: Record<string, string>;
     }
   | { ok: false; status: number; error: string };
 
@@ -71,7 +71,7 @@ export async function buildCallContext(
     `${ctx.prescription.available_count} medicamentos`;
   const delivery_date = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
-  const variableValues = {
+  const variableValues: Record<string, string> = {
     first_name,
     honorific,
     last_4_cc: patient.last_4_cc,
@@ -88,7 +88,7 @@ export async function buildCallContext(
     slot_delivery_spoken_morning: "mañana en la mañana",
     slot_delivery_spoken_afternoon: "mañana en la tarde",
     delivery_date,
-    copay_cents: COPAY_CENTS,
+    copay_cents: String(COPAY_CENTS),
     copay_spoken: COPAY_SPOKEN,
   };
 

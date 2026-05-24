@@ -51,7 +51,7 @@ export const ASSISTANT_CONFIG = {
     provider: "openai",
     model: "gpt-4.1",
     temperature: 0.1,
-    maxTokens: 120,
+    maxTokens: 500,
     messages: [{ role: "system", content: SYSTEM_PROMPT }],
     tools: [
       {
